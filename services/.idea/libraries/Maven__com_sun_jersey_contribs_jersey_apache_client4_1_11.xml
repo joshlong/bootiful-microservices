@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: com.sun.jersey.contribs:jersey-apache-client4:1.11">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/com/sun/jersey/contribs/jersey-apache-client4/1.11/jersey-apache-client4-1.11.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/com/sun/jersey/contribs/jersey-apache-client4/1.11/jersey-apache-client4-1.11-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/com/sun/jersey/contribs/jersey-apache-client4/1.11/jersey-apache-client4-1.11-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

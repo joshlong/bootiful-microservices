@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/bookmarks/bookmarks.iml" filepath="$PROJECT_DIR$/bookmarks/bookmarks.iml" />
+      <module fileurl="file://$PROJECT_DIR$/contacts/contacts.iml" filepath="$PROJECT_DIR$/contacts/contacts.iml" />
+      <module fileurl="file://$PROJECT_DIR$/gateway/gateway.iml" filepath="$PROJECT_DIR$/gateway/gateway.iml" />
+      <module fileurl="file://$PROJECT_DIR$/microservices-parent.iml" filepath="$PROJECT_DIR$/microservices-parent.iml" />
+    </modules>
+  </component>
+</project>

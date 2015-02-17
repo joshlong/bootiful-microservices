@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: com.netflix.rxnetty:rx-netty-servo:0.3.17">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/com/netflix/rxnetty/rx-netty-servo/0.3.17/rx-netty-servo-0.3.17.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/com/netflix/rxnetty/rx-netty-servo/0.3.17/rx-netty-servo-0.3.17-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/com/netflix/rxnetty/rx-netty-servo/0.3.17/rx-netty-servo-0.3.17-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
