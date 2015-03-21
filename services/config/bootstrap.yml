@@ -1,10 +1,13 @@
 spring:
- application:
-  name: config
- cloud:
-  config:
-   server:
-    git:
-     uri: ${HOME}/bootiful-microservices-config/
+  application:
+    name: config
+  cloud:
+    config:
+      server:
+        git:
+#          uri: file:///Users/jlong/Desktop/bootiful-microservices-workshop/bootiful-microservices-config
+          uri: file://${HOME}/bootiful-microservices-config
 server:
- port : 8888
+  port: 8888
+
+debug : true

@@ -1,6 +1,14 @@
 spring:
-  application:
-    name: bookmarks
-cloud:
+ application:
+  name: bookmarks
+ cloud:
   config:
-    uri: ${vcap.services.config.credentials.uri:http://localhost:8888/}
+   uri: http://127.0.0.1:8888/
+
+
+# cloud:
+#  config:
+#   uri: ${vcap.services.config.credentials.uri:http://localhost:8888/}
+
+debug : true
+
