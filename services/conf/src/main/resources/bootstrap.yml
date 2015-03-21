@@ -1,0 +1,17 @@
+spring:
+ application:
+  name: config
+ cloud:
+  config:
+   server:
+    git:
+     uri: file://${HOME}/bootiful-microservices-config
+
+#          uri: file:///Users/jlong/Desktop/bootiful-microservices-workshop/bootiful-microservices-config
+
+# cloud:
+#  config:
+#   uri: ${vcap.services.config.credentials.uri:http://localhost:8888/}
+
+debug : true
+

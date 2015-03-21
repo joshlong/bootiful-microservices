@@ -11,7 +11,7 @@
         <module>contacts</module>
         <module>gateway</module>
         <module>auth</module>
-
+        <module>conf</module>
     </modules>
     <parent>
         <groupId>org.springframework.cloud</groupId>

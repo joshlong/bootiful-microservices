@@ -4,7 +4,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.SpringCloudApplication;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,7 +19,8 @@ import javax.persistence.Id;
 import java.util.Arrays;
 import java.util.Collection;
 
-@SpringCloudApplication
+@SpringBootApplication
+@EnableDiscoveryClient
 public class BookmarkApplication {
 
     public static void main(String args[]) throws Throwable {
