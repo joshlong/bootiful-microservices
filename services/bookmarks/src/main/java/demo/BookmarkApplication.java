@@ -18,9 +18,6 @@ import java.util.Arrays;
 import java.util.Collection;
 
 
-interface BookmarkRepository extends JpaRepository<Bookmark, Long> {
-    Collection<Bookmark> findByUserId(String userId);
-}
 
 @SpringCloudApplication
 public class BookmarkApplication {
@@ -43,6 +40,10 @@ public class BookmarkApplication {
                     br.save(new Bookmark(href, userId, descriptionForBookmark));
                 });
     }
+}
+
+interface BookmarkRepository extends JpaRepository<Bookmark, Long> {
+    Collection<Bookmark> findByUserId(String userId);
 }
 
 @RestController

@@ -16,12 +16,8 @@ import javax.persistence.Id;
 import java.util.Arrays;
 import java.util.Collection;
 
-interface ContactRepository extends JpaRepository<Contact, Long> {
-    Collection<Contact> findByUserId(String userId);
-}
 
 @SpringCloudApplication
-//@EnableOAuth2Resource
 public class ContactApplication {
 
     public static void main(String args[]) throws Throwable {
@@ -38,6 +34,10 @@ public class ContactApplication {
                                 .forEach(name -> cr.save(new Contact(
                                         userId, name[0], name[1], name[0].toLowerCase() + "@email.com"))));
     }
+}
+
+interface ContactRepository extends JpaRepository<Contact, Long> {
+    Collection<Contact> findByUserId(String userId);
 }
 
 @RestController

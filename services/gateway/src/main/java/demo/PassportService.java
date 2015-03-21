@@ -2,6 +2,8 @@ package demo;
 
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -26,6 +28,15 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
+@SpringCloudApplication
+@EnableFeignClients
+@EnableZuulProxy
+public class PassportService {
+
+    public static void main(String[] args) {
+        SpringApplication.run(PassportService.class, args);
+    }
+}
 
 @FeignClient("bookmarks")
 interface BookmarkClient {
@@ -41,27 +52,20 @@ interface ContactClient {
     Collection<Contact> getContacts(@PathVariable("userId") String userId);
 }
 
-@SpringCloudApplication
-@EnableFeignClients
-@EnableZuulProxy
-public class PassportService {
-
-    public static void main(String[] args) {
-        SpringApplication.run(PassportService.class, args);
-    }
-}
 
 @Order(1)
 @Component
 class DiscoveryClientExample implements CommandLineRunner {
+
+    private Log log = LogFactory.getLog(this.getClass().getName());
 
     @Autowired
     private DiscoveryClient discoveryClient;
 
     @Override
     public void run(String... strings) throws Exception {
-
-        System.out.println("DiscoveryClient Example");
+        log.info("------------------------------");
+        log.info("DiscoveryClient Example");
 
         discoveryClient.getInstances("contacts").forEach((ServiceInstance s) -> {
             System.out.println(ToStringBuilder.reflectionToString(s));
@@ -76,13 +80,17 @@ class DiscoveryClientExample implements CommandLineRunner {
 @Component
 class RestTemplateExample implements CommandLineRunner {
 
+    private Log log = LogFactory.getLog(this.getClass().getName());
+
     @Autowired
     private RestTemplate restTemplate;
 
     @Override
     public void run(String... strings) throws Exception {
-        // use the "smart" Eureka-aware RestTemplate
-        System.out.println("RestTemplate Example");
+
+        log.info("------------------------------");
+        log.info("RestTemplate Example");
+
         ParameterizedTypeReference<List<Bookmark>> responseType =
                 new ParameterizedTypeReference<List<Bookmark>>() {
                 };
@@ -99,6 +107,8 @@ class RestTemplateExample implements CommandLineRunner {
 @Component
 class FeignExample implements CommandLineRunner {
 
+    private Log log = LogFactory.getLog(this.getClass().getName());
+
     @Autowired
     private ContactClient contactClient;
 
@@ -107,7 +117,10 @@ class FeignExample implements CommandLineRunner {
 
     @Override
     public void run(String... strings) throws Exception {
-        System.out.println("Feign Example");
+
+        log.info("------------------------------");
+        log.info("Feign Example");
+
         this.bookmarkClient.getBookmarks("jlong").forEach(System.out::println);
         this.contactClient.getContacts("jlong").forEach(System.out::println);
     }

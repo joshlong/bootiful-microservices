@@ -4,3 +4,5 @@ spring:
  cloud:
   config:
    uri: ${vcap.services.config.credentials.uri:http://127.0.0.1:8888}
+server:
+  port: 8761

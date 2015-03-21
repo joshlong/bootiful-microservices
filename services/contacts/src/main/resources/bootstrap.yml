@@ -3,4 +3,4 @@ spring:
   name: contacts
  cloud:
   config:
-   uri: ${vcap.services.config.credentials.uri:http://127.0.0.1:8888}
+   uri: ${vcap.services.config.credentials.uri:http://localhost:8888/}
