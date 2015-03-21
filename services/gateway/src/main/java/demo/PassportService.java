@@ -26,15 +26,15 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-@FeignClient("bookmark-service")
+
+@FeignClient("bookmarks")
 interface BookmarkClient {
 
     @RequestMapping(method = RequestMethod.GET, value = "/{userId}/bookmarks")
     Collection<Bookmark> getBookmarks(@PathVariable("userId") String userId);
 }
 
-
-@FeignClient("contact-service")
+@FeignClient("contacts")
 interface ContactClient {
 
     @RequestMapping(method = RequestMethod.GET, value = "/{userId}/contacts")
@@ -44,7 +44,6 @@ interface ContactClient {
 @SpringCloudApplication
 @EnableFeignClients
 @EnableZuulProxy
-//@EnableOAuth2Resource
 public class PassportService {
 
     public static void main(String[] args) {
@@ -64,10 +63,10 @@ class DiscoveryClientExample implements CommandLineRunner {
 
         System.out.println("DiscoveryClient Example");
 
-        discoveryClient.getInstances("contact-service").forEach((ServiceInstance s) -> {
+        discoveryClient.getInstances("contacts").forEach((ServiceInstance s) -> {
             System.out.println(ToStringBuilder.reflectionToString(s));
         });
-        discoveryClient.getInstances("bookmark-service").forEach((ServiceInstance s) -> {
+        discoveryClient.getInstances("bookmarks").forEach((ServiceInstance s) -> {
             System.out.println(ToStringBuilder.reflectionToString(s));
         });
     }
@@ -89,7 +88,7 @@ class RestTemplateExample implements CommandLineRunner {
                 };
 
         ResponseEntity<List<Bookmark>> exchange = this.restTemplate.exchange(
-                "http://bookmark-service/{userId}/bookmarks",
+                "http://bookmarks/{userId}/bookmarks",
                 HttpMethod.GET, null, responseType, (Object) "pwebb");
 
         exchange.getBody().forEach(System.out::println);

@@ -80,64 +80,40 @@ function deploy_contacts(){
     deploy_app contacts
 }
 
-
 function deploy_bookmarks(){
     cf cs elephantsql turtle bookmarks-postgresql
     deploy_app bookmarks
 }
 
-
-#
-#function deploy_eureka() {
-#    NAME=eureka-service
-#    deploy_app $NAME
-#    deploy_service $NAME
-#}
-#
-#function deploy_doge(){
-#    cf cs mongolab sandbox doge-mongo
-#    deploy_app doge-service
-#}
-#
-#function deploy_account(){
-#    cf cs elephantsql turtle doge-postgresql
-#    deploy_app account-service
-#}
-#
-#function deploy_hystrix(){
-#    deploy_app hystrix-service
-#}
-#
-#function deploy_webapp(){
-#    deploy_app webapp
-#}
+function deploy_gateway(){
+    deploy_app gateway
+}
 
 function reset(){
 
     echo "reset.."
-# apps
-#    cf d -f config
-#    cf d -f eureka
-#    cf d -f dashboard
-#    cf d -f contacts
 
-# services
-# cf ds -f $BUS_SERVICE
-# cf ds -f config
-# cf ds -f eureka
-# cf ds -f dashboard
+    # APPLICATIONS
+    apps="bookmarks config contacts dashboard eureka gateway"
+    apps_arr=( $apps )
+    for app in "${apps_arr[@]}";
+    do
+        echo "deleting app '$word'..";
+        cf d -f $app
+    done
 
 
-#    cf d -f eureka-service
-#    cf d -f doge-service
-#    cf d -f account-service
-#    cf d -f hystrix-service
-#    cf d -f webapp
-#
-#    cf ds -f config-service
-#    cf ds -f eureka-service
-#
+    # SERVICES
+    services="eureka dashboard contacts-postgresql config bus-rabbitmq bookmarks-postgresql"
+    services_arr=( $services )
+    for app in "${services_arr[@]}";
+    do
+        echo "deleting service '$word'..";
+        cf ds -f $app
+    done
+
     cf delete-orphaned-routes -f
+
 
 }
 
@@ -147,13 +123,13 @@ function reset(){
 ### and selectively uncomment them if the script in total encounters
 ### IO errors and such.
 
-mvn -DskipTests=true clean install
+ mvn -DskipTests=true clean install
 
-# login
-# reset
-# deploy_config
-# deploy_eureka
-# deploy_dashboard
-
-deploy_contacts
-deploy_bookmarks
+ login
+ reset
+ deploy_config
+ deploy_eureka
+ deploy_dashboard
+ deploy_contacts
+ deploy_bookmarks
+ deploy_gateway
