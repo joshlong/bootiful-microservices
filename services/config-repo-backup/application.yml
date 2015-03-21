@@ -1,0 +1,15 @@
+server:
+ port: ${PORT:${SERVER_PORT:0}}
+
+info:
+ id: ${spring.application.name}
+
+eureka:
+ client:
+  serviceUrl:
+   defaultZone: http://127.0.0.1:8761/eureka/
+
+spring:
+ oauth2:
+  resource:
+   userInfoUri: http://localhost:9999/uaa/user
