@@ -5,7 +5,7 @@
     <packaging>jar</packaging>
 
     <parent>
-        <groupId>oreilly</groupId>
+        <groupId>bootiful</groupId>
         <artifactId>microservices-parent</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
@@ -35,6 +35,18 @@
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
         </dependency>
+
+        <!-- TODO comment out
+        -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-security</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security.oauth</groupId>
+            <artifactId>spring-security-oauth2</artifactId>
+        </dependency>
+
     </dependencies>
 
 </project>

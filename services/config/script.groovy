@@ -1,0 +1,2 @@
+@EnableConfigServer
+class ConfigServer {}
