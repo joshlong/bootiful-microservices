@@ -5,16 +5,12 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.SpringCloudApplication;
-import org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
-import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 import org.springframework.cloud.netflix.feign.EnableFeignClients;
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
-import org.springframework.cloud.security.oauth2.resource.EnableOAuth2Resource;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
@@ -30,17 +26,31 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
+@FeignClient("bookmark-service")
+interface BookmarkClient {
+
+    @RequestMapping(method = RequestMethod.GET, value = "/{userId}/bookmarks")
+    Collection<Bookmark> getBookmarks(@PathVariable("userId") String userId);
+}
+
+
+@FeignClient("contact-service")
+interface ContactClient {
+
+    @RequestMapping(method = RequestMethod.GET, value = "/{userId}/contacts")
+    Collection<Contact> getContacts(@PathVariable("userId") String userId);
+}
+
 @SpringCloudApplication
 @EnableFeignClients
 @EnableZuulProxy
-@EnableOAuth2Resource
+//@EnableOAuth2Resource
 public class PassportService {
 
     public static void main(String[] args) {
         SpringApplication.run(PassportService.class, args);
     }
 }
-
 
 @Order(1)
 @Component
@@ -84,20 +94,6 @@ class RestTemplateExample implements CommandLineRunner {
 
         exchange.getBody().forEach(System.out::println);
     }
-}
-
-@FeignClient("bookmark-service")
-interface BookmarkClient {
-
-    @RequestMapping(method = RequestMethod.GET, value = "/{userId}/bookmarks")
-    Collection<Bookmark> getBookmarks(@PathVariable("userId") String userId);
-}
-
-@FeignClient("contact-service")
-interface ContactClient {
-
-    @RequestMapping(method = RequestMethod.GET, value = "/{userId}/contacts")
-    Collection<Contact> getContacts(@PathVariable("userId") String userId);
 }
 
 @Order(3)
@@ -167,6 +163,15 @@ class PassportRestController {
 
 class Passport {
     private String userId;
+    private Collection<Bookmark> bookmarks;
+    private Collection<Contact> contacts;
+    public Passport(String userId,
+                    Collection<Contact> contacts,
+                    Collection<Bookmark> bookmarks) {
+        this.userId = userId;
+        this.bookmarks = bookmarks;
+        this.contacts = contacts;
+    }
 
     @Override
     public String toString() {
@@ -175,17 +180,6 @@ class Passport {
                 ", bookmarks=" + bookmarks +
                 ", contacts=" + contacts +
                 '}';
-    }
-
-    private Collection<Bookmark> bookmarks;
-    private Collection<Contact> contacts;
-
-    public Passport(String userId,
-                    Collection<Contact> contacts,
-                    Collection<Bookmark> bookmarks) {
-        this.userId = userId;
-        this.bookmarks = bookmarks;
-        this.contacts = contacts;
     }
 
     public String getUserId() {
@@ -242,6 +236,9 @@ class Bookmark {
     private Long id;
     private String href, description, userId;
 
+    public Bookmark() {
+    }
+
     @Override
     public String toString() {
         return "Bookmark{" +
@@ -250,9 +247,6 @@ class Bookmark {
                 ", description='" + description + '\'' +
                 ", userId='" + userId + '\'' +
                 '}';
-    }
-
-    public Bookmark() {
     }
 
     public Long getId() {
