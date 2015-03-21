@@ -42,13 +42,29 @@ import java.security.Principal;
 @RestController
 public class AuthService {
 
+    public static void main(String[] args) {
+        SpringApplication.run(AuthService.class, args);
+    }
+
     @RequestMapping("/user")
     public Principal user(Principal user) {
         return user;
     }
 
-    public static void main(String[] args) {
-        SpringApplication.run(AuthService.class, args);
+    @Bean
+    UserDetailsService userDetailsService(JdbcTemplate jdbcTemplate) {
+
+        RowMapper<User> userDetailsRowMapper = (rs, i) -> new User(
+                rs.getString("ACCOUNT_NAME"),
+                rs.getString("PASSWORD"),
+                rs.getBoolean("ENABLED"),
+                rs.getBoolean("ENABLED"),
+                rs.getBoolean("ENABLED"),
+                rs.getBoolean("ENABLED"),
+                AuthorityUtils.createAuthorityList("ROLE_USER", "ROLE_ADMIN"));
+
+        return username -> jdbcTemplate.queryForObject(
+                "select * from ACCOUNT where ACCOUNT_NAME = ?", userDetailsRowMapper, username);
     }
 
     @Configuration
@@ -77,29 +93,13 @@ public class AuthService {
     static class CustomUserDetailsServiceGlobalAuthenticationManagerConfiguration
             extends GlobalAuthenticationConfigurerAdapter {
 
+        @Autowired
+        private UserDetailsService userDetailsService;
+
         @Override
         public void init(AuthenticationManagerBuilder auth) throws Exception {
             auth.userDetailsService(this.userDetailsService);
         }
-
-        @Autowired
-        private UserDetailsService userDetailsService;
-    }
-
-    @Bean
-    UserDetailsService userDetailsService(JdbcTemplate jdbcTemplate) {
-
-        RowMapper<User> userDetailsRowMapper = (rs, i) -> new User(
-                rs.getString("ACCOUNT_NAME"),
-                rs.getString("PASSWORD"),
-                rs.getBoolean("ENABLED"),
-                rs.getBoolean("ENABLED"),
-                rs.getBoolean("ENABLED"),
-                rs.getBoolean("ENABLED"),
-                AuthorityUtils.createAuthorityList("ROLE_USER", "ROLE_ADMIN"));
-
-        return username -> jdbcTemplate.queryForObject(
-                "select * from ACCOUNT where ACCOUNT_NAME = ?", userDetailsRowMapper, username);
     }
 
 }

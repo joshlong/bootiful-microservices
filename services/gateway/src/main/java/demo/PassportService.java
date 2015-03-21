@@ -165,6 +165,7 @@ class Passport {
     private String userId;
     private Collection<Bookmark> bookmarks;
     private Collection<Contact> contacts;
+
     public Passport(String userId,
                     Collection<Contact> contacts,
                     Collection<Bookmark> bookmarks) {

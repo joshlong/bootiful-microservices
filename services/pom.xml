@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>bootiful</groupId>
@@ -22,7 +22,6 @@
     <properties>
         <spring-security.version>4.0.0.RC2</spring-security.version>
         <java.version>1.8</java.version>
-        <!--<spring-security-oauth.version>2.0.6.RELEASE</spring-security-oauth.version>-->
     </properties>
     <build>
         <finalName>${project.artifactId}</finalName>
@@ -46,15 +45,8 @@
         </dependencies>
     </dependencyManagement>
     <repositories>
-        <!-- <repository>
-           <id>spring-snapshots</id>
-           <name>Spring Snapshots</name>
-           <url>http://repo.spring.io/libs-snapshot-local</url>
-           <snapshots>
-             <enabled>true</enabled>
-           </snapshots>
-         </repository>-->
-        <repository>
+
+    <repository>
             <id>spring-milestones</id>
             <name>Spring Milestones</name>
             <url>http://repo.spring.io/libs-milestone-local</url>
@@ -62,13 +54,6 @@
                 <enabled>false</enabled>
             </snapshots>
         </repository>
-        <!--  <repository>
-            <id>spring-releases</id>
-            <name>Spring Releases</name>
-            <url>http://repo.spring.io/libs-release-local</url>
-            <snapshots>
-              <enabled>false</enabled>
-            </snapshots>
-          </repository>-->
+
     </repositories>
 </project>
