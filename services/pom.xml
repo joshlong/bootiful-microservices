@@ -25,6 +25,7 @@
         <!--<spring-security-oauth.version>2.0.6.RELEASE</spring-security-oauth.version>-->
     </properties>
     <build>
+        <finalName>${project.artifactId}</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>

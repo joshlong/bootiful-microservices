@@ -1,0 +1,15 @@
+---
+applications:
+- name: dashboard
+  memory: 512M
+  instances: 1
+  host: dashboard-${random-word}
+  domain: cfapps.io
+  path: target/dashboard.jar
+  services:
+      - bus-rabbitmq
+      - config
+      - eureka
+  env:
+    SPRING_PROFILES_ACTIVE: cloud
+    DEBUG: "true"

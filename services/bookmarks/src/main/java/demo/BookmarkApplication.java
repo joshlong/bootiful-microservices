@@ -17,12 +17,8 @@ import javax.persistence.Id;
 import java.util.Arrays;
 import java.util.Collection;
 
-interface BookmarkRepository extends JpaRepository<Bookmark, Long> {
-    Collection<Bookmark> findByUserId(String userId);
-}
 
 @SpringCloudApplication
-//@EnableOAuth2Resource
 public class BookmarkApplication {
 
     public static void main(String args[]) throws Throwable {
@@ -37,12 +33,16 @@ public class BookmarkApplication {
     @Bean
     CommandLineRunner init(@Value("${bookmark.mask}") String bookmarkMask, BookmarkRepository br) {
         return args ->
-                Arrays.asList("jlong,rwinch,dsyer,pwebb,sgibb".split(",")).forEach(userId -> {
-                    String href = String.format("http://%s-link.com", userId);
-                    String descriptionForBookmark = this.descriptionForBookmark(bookmarkMask, userId, href);
-                    br.save(new Bookmark(href, userId, descriptionForBookmark));
-                });
+            Arrays.asList("jlong,rwinch,dsyer,pwebb,sgibb".split(",")).forEach(userId -> {
+                String href = String.format("http://%s-link.com", userId);
+                String descriptionForBookmark = this.descriptionForBookmark(bookmarkMask, userId, href);
+                br.save(new Bookmark(href, userId, descriptionForBookmark));
+            });
     }
+}
+
+interface BookmarkRepository extends JpaRepository<Bookmark, Long> {
+    Collection<Bookmark> findByUserId(String userId);
 }
 
 @RestController

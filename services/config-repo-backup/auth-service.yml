@@ -1,3 +1,0 @@
-server:
- port: 9999
- contxtPath: /uaa 

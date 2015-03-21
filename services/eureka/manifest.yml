@@ -1,0 +1,13 @@
+---
+applications:
+- name: eureka
+  memory: 512M
+  instances: 1
+  host: eureka-${random-word}
+  domain: cfapps.io
+  path: target/eureka.jar
+  services:
+      - bus-rabbitmq
+  env:
+    SPRING_PROFILES_ACTIVE: cloud
+    DEBUG: "true"

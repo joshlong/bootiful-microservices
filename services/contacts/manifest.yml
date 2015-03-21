@@ -1,0 +1,16 @@
+---
+applications:
+- name: contacts
+  memory: 512M
+  instances: 1
+  host: contacts-${random-word}
+  domain: cfapps.io
+  path: target/contacts.jar
+  services:
+    - contacts-postgresql
+    - config
+    - eureka
+  env:
+    SPRING_PROFILES_ACTIVE: cloud
+    DEBUG: "true"
+    debug: "true"
