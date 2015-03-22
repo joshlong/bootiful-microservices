@@ -1,0 +1,14 @@
+---
+applications:
+- name: configuration-service
+  memory: 512M
+  instances: 1
+  host: configuration-service-${random-word}
+  domain: cfapps.io
+  path: target/configuration-service.jar
+  services:
+      - bus-rabbitmq
+  env:
+    SPRING_PROFILES_ACTIVE: cloud
+    DEBUG: "true"
+    SPRING_CLOUD_CONFIG_SERVER_GIT_URI: https://github.com/joshlong/bootiful-microservices-config
