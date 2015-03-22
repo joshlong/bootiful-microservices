@@ -1,3 +1,0 @@
-@EnableHystrixDashboard
-@EnableDiscoveryClient
-class HystrixDashboard {}
