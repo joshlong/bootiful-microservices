@@ -1,0 +1,14 @@
+---
+applications:
+- name: dashboard-service
+  memory: 512M
+  instances: 1
+  host: dashboard-service-${random-word}
+  domain: cfapps.io
+  path: target/dashboard-service.jar
+  services:
+      - configuration-service
+      - bus-rabbitmq
+  env:
+    SPRING_PROFILES_ACTIVE: cloud
+    DEBUG: "true"

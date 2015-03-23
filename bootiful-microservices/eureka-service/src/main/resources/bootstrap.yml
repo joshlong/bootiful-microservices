@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: eureka-service
+  cloud:
+    config:
+      uri: ${vcap.services.configuration-service.credentials.uri:http://127.0.0.1:8888}

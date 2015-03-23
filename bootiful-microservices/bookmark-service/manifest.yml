@@ -1,0 +1,16 @@
+---
+applications:
+- name: bookmark-service
+  memory: 512M
+  instances: 1
+  host: bookmark-service-${random-word}
+  domain: cfapps.io
+  path: target/bookmark-service.jar
+  services:
+    - bookmarks-postgresql
+    - configuration-service
+    - eureka-service
+  env:
+    SPRING_PROFILES_ACTIVE: cloud
+    DEBUG: "true"
+    debug: "true"
