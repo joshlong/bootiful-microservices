@@ -1,4 +1,4 @@
-# Devoxx France 2015 Microservices HOL
+# Bootiful Microservices HOL
 
 ## Prerequisites
 
