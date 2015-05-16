@@ -1,8 +1,6 @@
 package demo;
 
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -41,7 +39,7 @@ public class DemoApplication {
     }
 
     @Bean
-    CommandLineRunner restTemplate(RestTemplate restTemplate) {
+    CommandLineRunner rt(RestTemplate restTemplate) {
         return args -> {
             ParameterizedTypeReference<List<Reservation>> ptr
                     = new ParameterizedTypeReference<List<Reservation>>() {
@@ -51,19 +49,14 @@ public class DemoApplication {
                     "http://reservation-service/reservations",
                     HttpMethod.GET, null, ptr).getBody();
 
-            reservations.forEach(r -> System.out.println(ToStringBuilder.reflectionToString(
-                    r, ToStringStyle.MULTI_LINE_STYLE)));
-
-
+            reservations.forEach(System.out::println);
         };
     }
 
     @Bean
     CommandLineRunner feign(ReservationsRestClient client) {
         return args ->
-                client.getReservations()
-                        .forEach(r -> System.out.println(ToStringBuilder.reflectionToString(
-                                r, ToStringStyle.MULTI_LINE_STYLE)));
+                client.getReservations().forEach(System.out::println);
     }
 
     public static void main(String[] args) {
@@ -114,8 +107,17 @@ interface ReservationsRestClient {
 }
 
 class Reservation {
+
     private Long id;
     private String reservationName;
+
+    @Override
+    public String toString() {
+        return "Reservation{" +
+                "id=" + id +
+                ", reservationName='" + reservationName + '\'' +
+                '}';
+    }
 
     public Long getId() {
         return id;
