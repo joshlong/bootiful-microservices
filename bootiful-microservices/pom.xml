@@ -7,33 +7,12 @@
     <version>1.0.0.BUILD-SNAPSHOT</version>
     <packaging>pom</packaging>
     <modules>
-
-        <!-- infrastructure -->
-        <module>configuration-service</module>
-        <module>eureka-service</module>
-        <module>dashboard-service</module>
-
-        <!-- services -->
-        <module>bookmark-service</module>
-        <module>contact-service</module>
-        <module>passport-service</module>
+        <module>client</module>
+        <module>config</module>
+        <module>hystrix-dashboard</module>
+        <module>reservations</module>
+        <module>eureka</module>
+        
     </modules>
-    <parent>
-        <groupId>org.springframework.cloud</groupId>
-        <artifactId>spring-cloud-starter-parent</artifactId>
-        <version>1.0.0.RELEASE</version>
-        <relativePath/>
-    </parent>
-    <properties>
-        <java.version>1.8</java.version>
-    </properties>
-    <build>
-        <finalName>${project.artifactId}</finalName>
-        <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>
-        </plugins>
-    </build>
+
 </project>
