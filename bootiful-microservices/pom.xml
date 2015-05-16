@@ -2,8 +2,8 @@
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>bootiful</groupId>
-    <artifactId>microservices-parent</artifactId>
+    <groupId>org.test</groupId>
+    <artifactId>parent</artifactId>
     <version>1.0.0.BUILD-SNAPSHOT</version>
     <packaging>pom</packaging>
     <modules>
@@ -12,7 +12,7 @@
         <module>hystrix-dashboard</module>
         <module>reservations</module>
         <module>eureka</module>
-        
+
     </modules>
 
 </project>
