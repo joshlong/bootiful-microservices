@@ -7,7 +7,6 @@ set -e
 
 CLOUD_DOMAIN=${DOMAIN:-run.pivotal.io}
 CLOUD_TARGET=api.${DOMAIN}
-BUS_SERVICE=bus-rabbitmq
 
 function login(){
     cf api | grep ${CLOUD_TARGET} || cf api ${CLOUD_TARGET} --skip-ssl-validation
@@ -25,11 +24,11 @@ function deploy_app(){
     APP_NAME=$1
     echo "APP_NAME=$APP_NAME"
     cd $APP_NAME
-    cf push $APP_NAME  --no-start
-    APPLICATION_DOMAIN="`app_domain $APP_NAME`"
-    echo "APPLICATION_DOMAIN=$APPLICATION_DOMAIN"
-    cf env $APP_NAME | grep APPLICATION_DOMAIN || cf set-env $APP_NAME APPLICATION_DOMAIN $APPLICATION_DOMAIN
-    cf restart $APP_NAME
+    cf push $APP_NAME
+    #APPLICATION_DOMAIN="`app_domain $APP_NAME`"
+    #echo "APPLICATION_DOMAIN=$APPLICATION_DOMAIN"
+    #cf env $APP_NAME | grep APPLICATION_DOMAIN || cf set-env $APP_NAME APPLICATION_DOMAIN $APPLICATION_DOMAIN
+    #cf restart $APP_NAME
     cd ..
 }
 
@@ -78,7 +77,7 @@ function reset(){
          cf d -f $a
     done
 
-    services="reservations-postgresql $BUS_SERVICE eureka-service config-service"
+    services="reservations-postgresql eureka-service config-service"
     services_arr=( $services )
     for s in "${services_arr[@]}";
     do
@@ -86,7 +85,7 @@ function reset(){
         cf ds -f $s
     done
 
-    cf delete-orphaned-routes -f                                                                                                                            
+    cf delete-orphaned-routes -f
 
 }
 
@@ -96,14 +95,11 @@ function reset(){
 
 mvn -DskipTests=true clean install
 
-cf d -f reservation-client
-cf d -f reservation-service
-cf delete-orphaned-routes -f
-#login
-#reset
-#deploy_config_service
-#deploy_eureka_service
-#deploy_hystrix_dashboard
-deploy_reservation_service
 
+#login
+reset
+deploy_config_service
+deploy_eureka_service
+deploy_hystrix_dashboard
+deploy_reservation_service
 deploy_reservation_client
