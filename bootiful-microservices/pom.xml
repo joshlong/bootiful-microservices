@@ -7,11 +7,11 @@
     <version>1.0.0.BUILD-SNAPSHOT</version>
     <packaging>pom</packaging>
     <modules>
-        <module>client</module>
-        <module>config</module>
+        <module>config-service</module>
+        <module>eureka-service</module>
         <module>hystrix-dashboard</module>
-        <module>reservations</module>
-        <module>eureka</module>
+        <module>reservation-service</module>
+        <module>reservation-client</module>
 
     </modules>
 

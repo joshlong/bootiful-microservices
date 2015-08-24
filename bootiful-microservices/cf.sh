@@ -19,32 +19,15 @@ function app_domain(){
     echo $D
 }
 
-### common
-function deploy_cli_app(){
-    cf cs cloudamqp tiger $BUS_SERVICE
-
-    APP_NAME=$1
-    cd $APP_NAME
-    mkdir -p target
-    spring jar target/$APP_NAME.jar script.groovy
-    cd target
-    cf push $APP_NAME --no-start
-    APPLICATION_DOMAIN=`app_domain $APP_NAME`
-    echo determined that application_domain for $APP_NAME is $APPLICATION_DOMAIN.
-    cf env $APP_NAME | grep APPLICATION_DOMAIN || cf set-env $APP_NAME APPLICATION_DOMAIN $APPLICATION_DOMAIN
-    cf restart $APP_NAME
-    cd ..
-}
+## COMMON
 
 function deploy_app(){
-    # common to all nodes
-    cf cs cloudamqp tiger $BUS_SERVICE
-
     APP_NAME=$1
+    echo "APP_NAME=$APP_NAME"
     cd $APP_NAME
     cf push $APP_NAME  --no-start
-    APPLICATION_DOMAIN=`app_domain $APP_NAME`
-    echo determined that application_domain for $APP_NAME is $APPLICATION_DOMAIN.
+    APPLICATION_DOMAIN="`app_domain $APP_NAME`"
+    echo "APPLICATION_DOMAIN=$APPLICATION_DOMAIN"
     cf env $APP_NAME | grep APPLICATION_DOMAIN || cf set-env $APP_NAME APPLICATION_DOMAIN $APPLICATION_DOMAIN
     cf restart $APP_NAME
     cd ..
@@ -58,16 +41,9 @@ function deploy_service(){
     cf cups $N -p $JSON
 }
 
-function deploy_configuration_service(){
-    NAME=configuration-service
+function deploy_config_service(){
+    NAME=config-service
     deploy_app $NAME
-    deploy_service $NAME
-}
-
-function deploy_configuration_service_cli(){
-    NAME=configuration-service
-    echo $NAME-cli
-    deploy_cli_app $NAME-cli
     deploy_service $NAME
 }
 
@@ -77,34 +53,24 @@ function deploy_eureka_service(){
     deploy_service $NAME
 }
 
-function deploy_eureka_service_cli(){
-    NAME=eureka-service
-    deploy_cli_app $NAME-cli
-    deploy_service $NAME
+function deploy_hystrix_dashboard(){
+    deploy_app hystrix-dashboard
 }
 
-function deploy_dashboard_service(){
-    deploy_app dashboard-service
+
+function deploy_reservation_service(){
+    cf cs elephantsql turtle reservations-postgresql
+    deploy_app reservation-service
 }
 
-function deploy_contact_service(){
-    cf cs elephantsql turtle contacts-postgresql
-    deploy_app contact-service
-}
-
-function deploy_bookmark_service(){
-    cf cs elephantsql turtle bookmarks-postgresql
-    deploy_app bookmark-service
-}
-
-function deploy_passport_service(){
-    deploy_app passport-service
+function deploy_reservation_client(){
+    deploy_app reservation-client
 }
 
 function reset(){
 
     echo "reset.."
-    apps="bookmark-service configuration-service contact-service dashboard-service eureka-service passport-service"
+    apps="hystrix-dashboard reservation-client reservation-service eureka-service config-service"
     apps_arr=( $apps )
     for a in "${apps_arr[@]}";
     do
@@ -112,13 +78,16 @@ function reset(){
          cf d -f $a
     done
 
-    services="bookmarks-postgresql bus-rabbitmq configuration-service contacts-postgresql eureka-service"
+    services="reservations-postgresql $BUS_SERVICE eureka-service config-service"
     services_arr=( $services )
     for s in "${services_arr[@]}";
     do
         echo $s
         cf ds -f $s
     done
+
+    cf delete-orphaned-routes -f                                                                                                                            
+
 }
 
 ###
@@ -127,11 +96,14 @@ function reset(){
 
 mvn -DskipTests=true clean install
 
+cf d -f reservation-client
+cf d -f reservation-service
+cf delete-orphaned-routes -f
 #login
 #reset
-#deploy_configuration_service
+#deploy_config_service
 #deploy_eureka_service
-deploy_dashboard_service
-#deploy_contact_service
-#deploy_bookmark_service
-#deploy_passport_service
+#deploy_hystrix_dashboard
+deploy_reservation_service
+
+deploy_reservation_client
