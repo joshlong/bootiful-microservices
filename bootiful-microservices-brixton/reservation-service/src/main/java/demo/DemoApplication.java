@@ -11,53 +11,55 @@ import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
+import org.springframework.cloud.sleuth.Sampler;
+import org.springframework.cloud.sleuth.sampler.AlwaysSampler;
 import org.springframework.cloud.stream.annotation.EnableBinding;
 import org.springframework.cloud.stream.messaging.Sink;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.repository.query.Param;
+import org.springframework.http.MediaType;
 import org.springframework.integration.annotation.MessageEndpoint;
 import org.springframework.integration.annotation.ServiceActivator;
-import org.springframework.security.oauth2.config.annotation.web.configuration.EnableOAuth2Client;
-import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.sql.DataSource;
 import java.util.Arrays;
 import java.util.Collection;
 
-@EnableResourceServer
 @EnableBinding(Sink.class)
 @EnableDiscoveryClient
 @SpringBootApplication
 public class DemoApplication {
 
+    @Bean
+    Sampler<?> defaultSampler() {
+        return new AlwaysSampler();
+    }
+
     public static void main(String[] args) {
         SpringApplication.run(DemoApplication.class, args);
     }
 
-
     @Bean
     HealthIndicator healthIndicator() {
-        return () -> Health.status("I <3 China!").build();
-
+        return () -> Health.status("I <3 Ele.me! I'm hungry!").build();
     }
 
     @Bean
-    CommandLineRunner runner(ReservationRepository r) {
+    CommandLineRunner runner(ReservationRepository repository) {
         return args -> {
-
-            Arrays.asList("Rod,Juergen,Dr. Dave,Jennifer,Tom,Josh".split(","))
-                    .forEach(s -> r.save(new Reservation(s)));
-
-            r.findAll().forEach(System.out::println);
-
-            r.findByReservationName("Juergen").forEach(System.out::println);
+            Arrays.asList("Josh,Henry,Lei,Jixi,Alex,Tony".split(","))
+                    .forEach(x -> repository.save(new Reservation(x)));
+            repository.findAll().forEach(System.out::println);
+            repository.findByReservationName("Alex").forEach(System.out::println);
         };
     }
 }
+
+
 
 @MessageEndpoint
 class ReservationRecorder {
@@ -74,10 +76,6 @@ class ReservationRecorder {
     }
 }
 
-interface ReservationRepository extends JpaRepository<Reservation, Long> {
-
-    Collection<Reservation> findByReservationName(String rn);
-}
 
 @RefreshScope
 @RestController
@@ -87,7 +85,7 @@ class MessageRestController {
     private String message;
 
     @RequestMapping("/message")
-    String msg() {
+    String message() {
         return this.message;
     }
 }
@@ -98,41 +96,16 @@ class ReservationRestController {
     @Autowired
     private ReservationRepository reservationRepository;
 
-    @RequestMapping("/reservations")
+    @RequestMapping(method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE,
+            value = "/reservations")
     Collection<Reservation> reservations() {
         return this.reservationRepository.findAll();
     }
 }
 
-@Entity
-class Reservation {
+interface ReservationRepository extends JpaRepository<Reservation, Long> {
 
-    @Id
-    @GeneratedValue
-    private Long id;
-    private String reservationName;
-
-    Reservation() {  // why JPA why??
-    }
-
-    public Reservation(String reservationName) {
-        this.reservationName = reservationName;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public String getReservationName() {
-        return reservationName;
-    }
-
-    @Override
-    public String toString() {
-        final StringBuilder sb = new StringBuilder("Reservation{");
-        sb.append("id=").append(id);
-        sb.append(", reservationName='").append(reservationName).append('\'');
-        sb.append('}');
-        return sb.toString();
-    }
+    Collection<Reservation> findByReservationName(@Param("rn") String rn);
 }
+

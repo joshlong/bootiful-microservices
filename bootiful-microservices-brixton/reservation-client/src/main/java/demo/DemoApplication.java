@@ -2,15 +2,16 @@ package demo;
 
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker;
-import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+import org.springframework.cloud.client.SpringCloudApplication;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.netflix.feign.EnableFeignClients;
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
 import org.springframework.cloud.sleuth.Sampler;
 import org.springframework.cloud.sleuth.Trace;
+import org.springframework.cloud.sleuth.TraceScope;
 import org.springframework.cloud.sleuth.sampler.AlwaysSampler;
 import org.springframework.cloud.stream.annotation.EnableBinding;
 import org.springframework.cloud.stream.messaging.Source;
@@ -18,6 +19,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.integration.annotation.Gateway;
 import org.springframework.integration.annotation.IntegrationComponentScan;
 import org.springframework.integration.annotation.MessagingGateway;
@@ -33,13 +35,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@EnableZuulProxy
-@SpringBootApplication
 @EnableBinding(Source.class)
 @IntegrationComponentScan
-@EnableCircuitBreaker
+@EnableZuulProxy
 @EnableFeignClients
-@EnableDiscoveryClient
+@SpringCloudApplication
 public class DemoApplication {
 
     @Bean
@@ -47,80 +47,59 @@ public class DemoApplication {
         return new AlwaysSampler();
     }
 
+    @Bean
+    CommandLineRunner dc(DiscoveryClient dc) {
+        return args ->
+                dc.getInstances("reservation-service").forEach(si -> System.out.println(
+                        String.format("%s %s:%s", si.getServiceId(), si.getHost(), si.getPort())
+                ));
+    }
+
+    @Bean
+    CommandLineRunner rt(RestTemplate rt) {
+        return args -> {
+
+            ParameterizedTypeReference<List<Reservation>> ptr =
+                    new ParameterizedTypeReference<List<Reservation>>() {
+                    }; // type token
+
+            ResponseEntity<List<Reservation>> responseEntity =
+                    rt.exchange("http://reservation-service/reservations", HttpMethod.GET, null, ptr);
+
+            responseEntity.getBody().forEach(System.out::println);
+        };
+    }
+
+
+    @Bean
+    CommandLineRunner fc(ReservationReader reservationReader,
+                         Trace trace) {
+        return args -> {
+
+            try (TraceScope scope = trace.startSpan("getReservationNamesCLR",
+                    new AlwaysSampler(), null)) {
+                List<String> collect = reservationReader
+                        .getReservations()
+                        .stream().map(Reservation::getReservationName)
+                        .collect(Collectors.toList());
+                trace.addAnnotation("names", Integer.toString(collect.size()));
+                collect.forEach(System.out::println);
+            }
+        };
+    }
+
     public static void main(String[] args) {
         SpringApplication.run(DemoApplication.class, args);
     }
 }
 
-class Reservation {
 
-    private Long id;
-    private String reservationName;
-
-    public Long getId() {
-        return id;
-    }
-
-    @Override
-    public String toString() {
-        final StringBuilder sb = new StringBuilder("Reservation{");
-        sb.append("id=").append(id);
-        sb.append(", reservationName='").append(reservationName).append('\'');
-        sb.append('}');
-        return sb.toString();
-    }
-
-    public String getReservationName() {
-        return reservationName;
-    }
-}
-
-
-@Component
-class ReservationIntegration {
-
-
-    @Autowired
-    private Trace trace;
-
-    public Collection<String> getReservationNamesFallback() {
-        return Collections.emptyList();
-    }
-
-    private Collection<Reservation> getReservations() {
-        return this.restTemplate.exchange(
-                "http://reservation-service/reservations",
-                HttpMethod.GET,
-                null,
-                new ParameterizedTypeReference<List<Reservation>>() {
-                }
-        ).getBody();
-    }
-
-    @Autowired
-    private RestTemplate restTemplate;
-
-    @HystrixCommand(fallbackMethod = "getReservationNamesFallback")
-    public Collection<String> getReservationNames() {
-        this.trace.startSpan("getReservationNames", new AlwaysSampler(), null);
-        List<String> collect = getReservations()
-                .stream()
-                .map(Reservation::getReservationName)
-                .collect(Collectors.toList());
-        this.trace.addAnnotation("names", Integer.toString(collect.size()));
-        return collect;
-    }
-}
-
-// todo this just doesn't want to play nice!
-/*
 @FeignClient("reservation-service")
 interface ReservationReader {
 
     @RequestMapping(method = RequestMethod.GET, value = "/reservations")
-    Collection<Reservation> getReservation();
+    Collection<Reservation> getReservations();
 }
-*/
 
 @MessagingGateway(name = "reservation")
 interface ReservationWriter {
@@ -150,21 +129,44 @@ class ReservationRestController {
     }
 }
 
+@Component
+class ReservationIntegration {
 
+    @Autowired
+    private ReservationReader reservationReader;
 
+    public Collection<String> getReservationNamesFallback() {
+        return Collections.emptyList();
+    }
 
+    @HystrixCommand(fallbackMethod = "getReservationNamesFallback")
+    public Collection<String> getReservationNames() {
+        return reservationReader.getReservations()
+                .stream()
+                .map(Reservation::getReservationName)
+                .collect(Collectors.toList());
+    }
 
+}
 
+class Reservation {
+    private Long id;
+    private String reservationName;
 
+    public Long getId() {
+        return id;
+    }
 
+    public String getReservationName() {
+        return reservationName;
+    }
 
-
-
-
-
-
-
-
-
-
-
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("Reservation{");
+        sb.append("id=").append(id);
+        sb.append(", reservationName='").append(reservationName).append('\'');
+        sb.append('}');
+        return sb.toString();
+    }
+}
