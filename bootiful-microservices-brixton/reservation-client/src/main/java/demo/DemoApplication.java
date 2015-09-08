@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.cloud.client.SpringCloudApplication;
+import org.springframework.boot.autoconfigure.security.oauth2.client.EnableOAuth2Sso;
 import org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
@@ -26,6 +26,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.integration.annotation.Gateway;
 import org.springframework.integration.annotation.IntegrationComponentScan;
 import org.springframework.integration.annotation.MessagingGateway;
+import org.springframework.security.oauth2.config.annotation.web.configuration.EnableOAuth2Client;
+import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -42,10 +44,14 @@ import java.util.stream.Collectors;
 @IntegrationComponentScan
 @EnableZuulProxy
 @EnableFeignClients
-@SpringBootApplication
 @EnableDiscoveryClient
 @EnableCircuitBreaker
+//@EnableOAuth2Client // todo @EnableOAuth2Sso
+@EnableResourceServer
+@SpringBootApplication
 public class DemoApplication {
+
+
 
     @Bean
     Sampler<?> defaultSampler() {
@@ -55,10 +61,12 @@ public class DemoApplication {
     @Bean
     CommandLineRunner dc(DiscoveryClient dc) {
         return args ->
-                dc.getInstances("reservation-service").forEach(si -> System.out.println(
-                        String.format("%s %s:%s", si.getServiceId(), si.getHost(), si.getPort())
-                ));
+                dc.getInstances("reservation-service")
+                        .forEach(si -> System.out.println(
+                                String.format("%s %s:%s", si.getServiceId(), si.getHost(), si.getPort())
+                        ));
     }
+/*
 
     @Bean
     CommandLineRunner rt(RestTemplate rt) {
@@ -74,9 +82,10 @@ public class DemoApplication {
             responseEntity.getBody().forEach(System.out::println);
         };
     }
+*/
 
 
-    @Bean
+ /*   @Bean
     CommandLineRunner fc(ReservationReader reservationReader,
                          Trace trace) {
         return args -> {
@@ -92,7 +101,7 @@ public class DemoApplication {
             }
         };
     }
-
+*/
     public static void main(String[] args) {
         SpringApplication.run(DemoApplication.class, args);
     }
