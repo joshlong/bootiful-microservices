@@ -4,8 +4,11 @@ import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.SpringCloudApplication;
+import org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.netflix.feign.EnableFeignClients;
 import org.springframework.cloud.netflix.feign.FeignClient;
 import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
@@ -39,7 +42,9 @@ import java.util.stream.Collectors;
 @IntegrationComponentScan
 @EnableZuulProxy
 @EnableFeignClients
-@SpringCloudApplication
+@SpringBootApplication
+@EnableDiscoveryClient
+@EnableCircuitBreaker
 public class DemoApplication {
 
     @Bean
