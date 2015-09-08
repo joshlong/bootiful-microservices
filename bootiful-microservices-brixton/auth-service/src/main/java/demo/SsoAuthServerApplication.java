@@ -60,7 +60,6 @@ public class SsoAuthServerApplication {
     public static void main(String[] args) {
         SpringApplication.run(SsoAuthServerApplication.class, args);
     }
-
 }
 
 @RestController

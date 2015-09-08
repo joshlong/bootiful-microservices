@@ -17,7 +17,6 @@ import org.springframework.cloud.stream.annotation.EnableBinding;
 import org.springframework.cloud.stream.messaging.Sink;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.repository.query.Param;
 import org.springframework.http.MediaType;
 import org.springframework.integration.annotation.MessageEndpoint;
 import org.springframework.integration.annotation.ServiceActivator;
@@ -25,7 +24,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.sql.DataSource;
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -34,13 +32,13 @@ import java.util.Collection;
 @SpringBootApplication
 public class DemoApplication {
 
+    public static void main(String[] args) {
+        SpringApplication.run(DemoApplication.class, args);
+    }
+
     @Bean
     Sampler<?> defaultSampler() {
         return new AlwaysSampler();
-    }
-
-    public static void main(String[] args) {
-        SpringApplication.run(DemoApplication.class, args);
     }
 
     @Bean
@@ -59,8 +57,6 @@ public class DemoApplication {
     }
 }
 
-
-
 @MessageEndpoint
 class ReservationRecorder {
 
@@ -71,7 +67,7 @@ class ReservationRecorder {
 
     @ServiceActivator(inputChannel = Sink.INPUT)
     public void acceptReservation(String reservationName) {
-        this.log.debug ("accepted reservation for '" + reservationName + "'");
+        this.log.debug("accepted reservation for '" + reservationName + "'");
         this.reservationRepository.save(new Reservation(reservationName));
     }
 }
@@ -106,6 +102,6 @@ class ReservationRestController {
 
 interface ReservationRepository extends JpaRepository<Reservation, Long> {
 
-    Collection<Reservation> findByReservationName(@Param("rn") String rn);
+    Collection<Reservation> findByReservationName(String rn);
 }
 
