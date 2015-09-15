@@ -1,14 +1,16 @@
 package demo;
 
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.security.oauth2.client.EnableOAuth2Sso;
+import org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
-import org.springframework.cloud.netflix.feign.EnableFeignClients;
 import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
 import org.springframework.cloud.sleuth.sampler.AlwaysSampler;
 import org.springframework.cloud.stream.annotation.EnableBinding;
@@ -29,13 +31,13 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.stream.Collectors;
 
 @EnableOAuth2Sso
 @EnableBinding(Source.class)
-@IntegrationComponentScan
-@EnableFeignClients
 @EnableZuulProxy
+@EnableCircuitBreaker
 @EnableDiscoveryClient
 @SpringBootApplication
 public class DemoApplication {
@@ -66,7 +68,7 @@ class ReservationEdgeController {
     @Autowired
     private MessageChannel messageChannel;
 
-    @LoadBalanced
+    @Qualifier("loadBalancedRestTemplate")
     @Autowired
     private RestTemplate restTemplate;
 
@@ -75,8 +77,13 @@ class ReservationEdgeController {
         this.messageChannel.send(MessageBuilder.withPayload(reservationName.getReservationName()).build());
     }
 
+    public Collection<String> readNamesFallback() {
+        return Collections.emptyList();
+    }
+
+    @HystrixCommand(fallbackMethod = "readNamesFallback")
     @RequestMapping(value = "/names", method = RequestMethod.GET)
-    Collection<String> readNames() {
+    public Collection<String> readNames() {
 
         ParameterizedTypeReference<Resources<Reservation>> ptr =
                 new ParameterizedTypeReference<Resources<Reservation>>() {

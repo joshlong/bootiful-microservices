@@ -39,7 +39,7 @@ public class DemoApplication {
     @Bean
     CommandLineRunner dummy(ReservationRepository rr) {
         return args ->
-                Arrays.asList("Dave,Mark,Scott,Rod,Spencer,Phil,Juergen,Josh".split(","))
+                Arrays.asList("Dr. Dave,Mark,Scott,Rod,Spencer,Phil,Juergen,Josh".split(","))
                         .forEach(x -> rr.save(new Reservation(x)));
     }
 
