@@ -2,13 +2,9 @@ package demo;
 
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.security.oauth2.client.EnableOAuth2Sso;
 import org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker;
-import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
@@ -21,7 +17,6 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.hateoas.Resources;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-import org.springframework.integration.annotation.IntegrationComponentScan;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -34,24 +29,17 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.stream.Collectors;
 
-@EnableOAuth2Sso
-@EnableBinding(Source.class)
 @EnableZuulProxy
+@EnableBinding(Source.class)
 @EnableCircuitBreaker
 @EnableDiscoveryClient
 @SpringBootApplication
 public class DemoApplication {
 
+
     @Bean
     AlwaysSampler alwaysSampler() {
         return new AlwaysSampler();
-    }
-
-    @Bean
-    CommandLineRunner dc(DiscoveryClient dc) {
-        return args ->
-                dc.getInstances("reservation-service")
-                        .forEach(si -> System.out.println(String.format("%s %s:%s", si.getServiceId(), si.getHost(), si.getPort())));
     }
 
     public static void main(String[] args) {
@@ -62,38 +50,39 @@ public class DemoApplication {
 
 @RestController
 @RequestMapping("/reservations")
-class ReservationEdgeController {
+class ReservationApiGatewayRestController {
 
-    @Output(Source.OUTPUT)
     @Autowired
-    private MessageChannel messageChannel;
-
-    @Qualifier("loadBalancedRestTemplate")
-    @Autowired
+    @LoadBalanced
     private RestTemplate restTemplate;
 
+    @Autowired
+    @Output(Source.OUTPUT)
+    private MessageChannel messageChannel;
+
     @RequestMapping(method = RequestMethod.POST)
-    void write(@RequestBody Reservation reservationName) {
-        this.messageChannel.send(MessageBuilder.withPayload(reservationName.getReservationName()).build());
+    public void write(@RequestBody Reservation r) {
+        this.messageChannel.send(MessageBuilder.withPayload(r.getReservationName()).build());
     }
 
-    public Collection<String> readNamesFallback() {
+    public Collection<String> getReservationNamesFallback() {
         return Collections.emptyList();
     }
 
-    @HystrixCommand(fallbackMethod = "readNamesFallback")
-    @RequestMapping(value = "/names", method = RequestMethod.GET)
-    public Collection<String> readNames() {
+    @HystrixCommand(fallbackMethod = "getReservationNamesFallback")
+    @RequestMapping("/names")
+    public Collection<String> getReservationNames() {
 
         ParameterizedTypeReference<Resources<Reservation>> ptr =
                 new ParameterizedTypeReference<Resources<Reservation>>() {
                 };
 
+        ResponseEntity<Resources<Reservation>> responseEntity =
+                this.restTemplate.exchange("http://reservation-service/reservations",
+                        HttpMethod.GET, null, ptr);
 
-        ResponseEntity<Resources<Reservation>> responseEntity = this.restTemplate.exchange(
-                "http://reservation-service/reservations", HttpMethod.GET, null, ptr);
-
-        return responseEntity.getBody()
+        return responseEntity
+                .getBody()
                 .getContent()
                 .stream()
                 .map(Reservation::getReservationName)
@@ -103,6 +92,9 @@ class ReservationEdgeController {
 }
 
 class Reservation {
+    private Long id;
+    private String reservationName;
+
     public Long getId() {
         return id;
     }
@@ -111,6 +103,12 @@ class Reservation {
         return reservationName;
     }
 
-    private Long id;
-    private String reservationName;
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("Reservation{");
+        sb.append("id=").append(id);
+        sb.append(", reservationName='").append(reservationName).append('\'');
+        sb.append('}');
+        return sb.toString();
+    }
 }

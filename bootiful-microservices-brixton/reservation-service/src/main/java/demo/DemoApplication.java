@@ -37,10 +37,12 @@ public class DemoApplication {
     }
 
     @Bean
-    CommandLineRunner dummy(ReservationRepository rr) {
-        return args ->
-                Arrays.asList("Dr. Dave,Mark,Scott,Rod,Spencer,Phil,Juergen,Josh".split(","))
-                        .forEach(x -> rr.save(new Reservation(x)));
+    CommandLineRunner runner(ReservationRepository rr) {
+        return args -> {
+            Arrays.asList("Dr. Rod, Dr. Syer,Juergen,ALL THE COMMUNITY,Josh".split(","))
+                    .forEach(x -> rr.save(new Reservation(x)));
+            rr.findAll().forEach(System.out::println);
+        };
     }
 
     public static void main(String[] args) {
@@ -49,15 +51,15 @@ public class DemoApplication {
 }
 
 @MessageEndpoint
-class ReservationConsumer {
+class MessageReservationReceiver {
+
+    @ServiceActivator(inputChannel = Sink.INPUT)
+    public void acceptReservation(String rn) {
+        this.reservationRepository.save(new Reservation(rn));
+    }
 
     @Autowired
     private ReservationRepository reservationRepository;
-
-    @ServiceActivator(inputChannel = Sink.INPUT)
-    public void acceptReservations(String rn) {
-        this.reservationRepository.save(new Reservation(rn));
-    }
 }
 
 @RefreshScope
@@ -68,7 +70,7 @@ class MessageRestController {
     private String message;
 
     @RequestMapping("/message")
-    String msg() {
+    String message() {
         return this.message;
     }
 }
@@ -87,17 +89,7 @@ class Reservation {
     @GeneratedValue
     private Long id;
 
-    private String reservationName;
-
-    public Long getId() {
-        return id;
-    }
-
-    public String getReservationName() {
-        return reservationName;
-    }
-
-    Reservation() { // why JPA why
+    Reservation() { // why JPA why??
     }
 
     public Reservation(String reservationName) {
@@ -112,5 +104,15 @@ class Reservation {
         sb.append(", reservationName='").append(reservationName).append('\'');
         sb.append('}');
         return sb.toString();
+    }
+
+    private String reservationName;
+
+    public Long getId() {
+        return id;
+    }
+
+    public String getReservationName() {
+        return reservationName;
     }
 }

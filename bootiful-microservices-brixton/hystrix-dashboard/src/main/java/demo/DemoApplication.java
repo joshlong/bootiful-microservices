@@ -2,9 +2,9 @@ package demo;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.cloud.config.server.EnableConfigServer;
+import org.springframework.cloud.netflix.hystrix.dashboard.EnableHystrixDashboard;
 
-@EnableConfigServer
+@EnableHystrixDashboard
 @SpringBootApplication
 public class DemoApplication {
 
