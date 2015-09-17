@@ -1,12 +1,16 @@
 package demo;
 
-import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.security.oauth2.client.EnableOAuth2Sso;
 import org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
-import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
 import org.springframework.cloud.sleuth.sampler.AlwaysSampler;
 import org.springframework.cloud.stream.annotation.EnableBinding;
@@ -25,9 +29,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.stream.Collectors;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 
 @EnableZuulProxy
 @EnableBinding(Source.class)
@@ -50,10 +52,11 @@ public class DemoApplication {
 
 @RestController
 @RequestMapping("/reservations")
+@EnableOAuth2Sso
 class ReservationApiGatewayRestController {
 
     @Autowired
-    @LoadBalanced
+    @Qualifier("loadBalancedRestTemplate")
     private RestTemplate restTemplate;
 
     @Autowired
@@ -96,18 +99,18 @@ class Reservation {
     private String reservationName;
 
     public Long getId() {
-        return id;
+        return this.id;
     }
 
     public String getReservationName() {
-        return reservationName;
+        return this.reservationName;
     }
 
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("Reservation{");
-        sb.append("id=").append(id);
-        sb.append(", reservationName='").append(reservationName).append('\'');
+        sb.append("id=").append(this.id);
+        sb.append(", reservationName='").append(this.reservationName).append('\'');
         sb.append('}');
         return sb.toString();
     }
