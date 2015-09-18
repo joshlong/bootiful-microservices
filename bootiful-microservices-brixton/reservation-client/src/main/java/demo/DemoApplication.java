@@ -1,9 +1,6 @@
 package demo;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.stream.Collectors;
-
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.SpringApplication;
@@ -29,12 +26,16 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
-import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
+import java.security.Principal;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.stream.Collectors;
 
 @EnableZuulProxy
 @EnableBinding(Source.class)
 @EnableCircuitBreaker
 @EnableDiscoveryClient
+@EnableOAuth2Sso
 @SpringBootApplication
 public class DemoApplication {
 
@@ -51,12 +52,23 @@ public class DemoApplication {
 
 
 @RestController
+class UserInfoRestController {
+
+    @RequestMapping("/user/info")
+    Principal principal(Principal p) {
+        return p;
+    }
+
+}
+
+@RestController
 @RequestMapping("/reservations")
-@EnableOAuth2Sso
 class ReservationApiGatewayRestController {
 
+
     @Autowired
-    @Qualifier("loadBalancedRestTemplate")
+    @Qualifier("loadBalancedOauth2RestTemplate")
+//    @LoadBalanced
     private RestTemplate restTemplate;
 
     @Autowired

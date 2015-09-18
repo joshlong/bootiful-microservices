@@ -1,12 +1,11 @@
-spring:
-  sleuth:
-    zipkin:
-      enabled: false
-server:
-  port: 9999
+#spring:
+#  sleuth:
+#    zipkin:
+#      enabled: false
+
 logging:
   level:
-    org.springframework.security: true
+    org.springframework.security: DEBUG
 security:
   oauth2:
     client:
