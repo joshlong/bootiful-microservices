@@ -39,7 +39,9 @@ public class DemoApplication {
     @Bean
     CommandLineRunner runner(ReservationRepository rr) {
         return args -> {
-            Arrays.asList("Dr. Rod, Dr. Syer,Juergen,ALL THE COMMUNITY,Josh".split(","))
+            Arrays.asList("Dr. Rod, Dr. Syer, Juergen,  COMMUNITY, Josh".split(","))
+                    .stream()
+                    .map(String::trim)
                     .forEach(x -> rr.save(new Reservation(x)));
             rr.findAll().forEach(System.out::println);
         };

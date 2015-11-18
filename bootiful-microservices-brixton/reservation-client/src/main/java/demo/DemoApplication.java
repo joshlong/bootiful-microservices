@@ -2,7 +2,6 @@ package demo;
 
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.security.oauth2.client.EnableOAuth2Sso;
@@ -35,7 +34,6 @@ import java.util.stream.Collectors;
 @EnableBinding(Source.class)
 @EnableCircuitBreaker
 @EnableDiscoveryClient
-@EnableOAuth2Sso
 @SpringBootApplication
 public class DemoApplication {
 
@@ -65,10 +63,7 @@ class UserInfoRestController {
 @RequestMapping("/reservations")
 class ReservationApiGatewayRestController {
 
-
     @Autowired
-    @Qualifier("loadBalancedOauth2RestTemplate")
-//    @LoadBalanced
     private RestTemplate restTemplate;
 
     @Autowired
@@ -103,7 +98,6 @@ class ReservationApiGatewayRestController {
                 .map(Reservation::getReservationName)
                 .collect(Collectors.toList());
     }
-
 }
 
 class Reservation {
@@ -120,10 +114,8 @@ class Reservation {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("Reservation{");
-        sb.append("id=").append(this.id);
-        sb.append(", reservationName='").append(this.reservationName).append('\'');
-        sb.append('}');
-        return sb.toString();
+        return "Reservation{" + "id=" + this.id +
+                ", reservationName='" + this.reservationName + '\'' +
+                '}';
     }
 }
