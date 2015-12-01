@@ -1,8 +1,9 @@
 package com.example;
 
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
-import com.sun.org.apache.xpath.internal.operations.String;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker;
@@ -35,6 +36,7 @@ import java.util.stream.Collectors;
 @SpringBootApplication
 public class ReservationClientApplication {
 
+
     public static void main(java.lang.String[] args) {
         SpringApplication.run(ReservationClientApplication.class, args);
     }
@@ -47,11 +49,7 @@ public class ReservationClientApplication {
 
 @RestController
 @RequestMapping("/reservations")
-<<<<<<< HEAD:bootiful-microservices-brixton/reservation-client/src/main/java/com/example/ReservationClientApplication.java
-class ReservationApiGateway {
-=======
 class ReservationApiGatewayRestController {
->>>>>>> 23341a290b3e2234652331e5349dc1eac1c0ff5f:bootiful-microservices-brixton/reservation-client/src/main/java/demo/DemoApplication.java
 
     @Autowired
     private RestTemplate restTemplate;
@@ -72,6 +70,7 @@ class ReservationApiGatewayRestController {
     @HystrixCommand(fallbackMethod = "getReservationNamesFallback")
     @RequestMapping("/names")
     public Collection<String> getReservationNames() {
+
 
         ParameterizedTypeReference<Resources<Reservation>> ptr =
                 new ParameterizedTypeReference<Resources<Reservation>>() {
@@ -99,26 +98,3 @@ class Reservation {
         return reservationName;
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-<<<<<<< HEAD:bootiful-microservices-brixton/reservation-client/src/main/java/com/example/ReservationClientApplication.java
-=======
-    @Override
-    public String toString() {
-        return "Reservation{" + "id=" + this.id +
-                ", reservationName='" + this.reservationName + '\'' +
-                '}';
-    }
-}
->>>>>>> 23341a290b3e2234652331e5349dc1eac1c0ff5f:bootiful-microservices-brixton/reservation-client/src/main/java/demo/DemoApplication.java

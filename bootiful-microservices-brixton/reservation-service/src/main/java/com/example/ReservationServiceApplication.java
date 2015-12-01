@@ -27,9 +27,9 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Collection;
 import java.util.stream.Stream;
 
+@SpringBootApplication
 @EnableBinding(Sink.class)
 @EnableDiscoveryClient
-@SpringBootApplication
 @IntegrationComponentScan
 public class ReservationServiceApplication {
 
@@ -39,7 +39,7 @@ public class ReservationServiceApplication {
 
     @Bean
     Sampler<?> sampler() {
-        return new AlwaysSampler();
+        return new AlwaysSampler() ;
     }
 
     @Bean
@@ -50,17 +50,9 @@ public class ReservationServiceApplication {
     @Bean
     CommandLineRunner dummy(ReservationRepository rr) {
         return args -> {
-<<<<<<< HEAD:bootiful-microservices-brixton/reservation-service/src/main/java/com/example/ReservationServiceApplication.java
             Stream.of("Scott", "Wayne", "Josh", "Vivian", "George", "Bob", "Viktor")
                     .forEach(n -> rr.save(new Reservation(n)));
-
             rr.findByReservationName("Wayne").forEach(System.out::println);
-=======
-            Arrays.asList("Dr. Rod, Dr. Syer, Juergen,  COMMUNITY, Josh".split(","))
-                    .stream()
-                    .map(String::trim)
-                    .forEach(x -> rr.save(new Reservation(x)));
->>>>>>> 23341a290b3e2234652331e5349dc1eac1c0ff5f:bootiful-microservices-brixton/reservation-service/src/main/java/demo/DemoApplication.java
             rr.findAll().forEach(System.out::println);
         };
     }
