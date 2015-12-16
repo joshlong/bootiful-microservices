@@ -1,5 +1,7 @@
 # Bootiful Applications with Spring Boot
 
+
+
 ## Intro
 In this section we'll look at using Spring Boot to make short work of building individual applications and services.
 

@@ -88,6 +88,7 @@ class ReservationIntegration {
 }
 
 @RestController
+@RequestMapping ("/reservations")
 class ReservationNamesRestController {
 
     @RequestMapping("/names")
