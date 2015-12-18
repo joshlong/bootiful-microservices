@@ -60,9 +60,4 @@ Org:            platform-eng
 Space:          joshlong
 
 ```
-- `cf push -p hi.jar`
-<!-- To run everything, be sure to run `mvn clean install` in the `bootiful-applications/demo`, and `bootiful-microservices` folder. There's a script in the root called `build-all.sh`. Run that. It may take some time, so get some coffee. You can run each module using `java -jar target/module.jar` where `module.jar` is the name of the compiled `.jar` in the `target` directory. Alternatively, you can use `mvn spring-boot:run` in each module.
-
-### Conference Wi-Fi & You
-If you're coming to a conference, you should run the `build-all.sh` script (or at least the `mvn` commands in the script) before coming to the conference to avoid the wrath of the conference wi-fi. Also, import `bootiful-application/demo/pom.xml` and `bootiful-microservices/pom.xml` into your favorite IDE before relying on conference wi-fi. And, lastly, I'd run `mvn spring-boot:run` at least once just to force Maven to download everything.
- -->
+- `cf push -p hi.jar SOME_NAME_YOU_MAKEUP_HERE` - the `SOME_NAME_YOU_MAKEUP_HERE` is arbitrary; it'll inform the URL that's used to mount the application and as such it shares a shared global (DNS) namespace
