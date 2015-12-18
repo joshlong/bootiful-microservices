@@ -15,7 +15,7 @@
 
 To follow the simple Spring Boot CLI example:
 
-- in a new file, called `hi.groovy`, type:
+- in a new file called `hi.groovy` type:
 
 ```
 @RestController
