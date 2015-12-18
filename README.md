@@ -5,17 +5,64 @@
 ### Develop
 - [Git](http://git-scm.com/downloads)
 - [Java 8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
-- [Maven](https://maven.apache.org/download.cgi)
-- An IDE, for example [IntelliJ IDEA](https://www.jetbrains.com/idea/download/)
 - [Spring Boot CLI](http://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#getting-started-installing-the-cli)
 
 ### Deploy and Manage
 - Create a free account on [Pivotal Web Services](http://run.pivotal.io/)
-- [Cloud Foundry CLI](https://github.com/cloudfoundry/cli/releases)
+- install the [Cloud Foundry CLI](https://github.com/cloudfoundry/cli/releases)
 
-### Running the Examples 
-To run everything, be sure to run `mvn clean install` in the `bootiful-applications/demo`, and `bootiful-microservices` folder. There's a script in the root called `build-all.sh`. Run that. It may take some time, so get some coffee. You can run each module using `java -jar target/module.jar` where `module.jar` is the name of the compiled `.jar` in the `target` directory. Alternatively, you can use `mvn spring-boot:run` in each module.
+### Running the Examples
+
+To follow the simple Spring Boot CLI example:
+
+- in a new file, called `hi.groovy`, type:
+
+```
+@RestController
+class GreetingsRestController {
+
+  @RequestMapping("/hi/{name}")
+  def hi(@PathVariable String name){
+    [ greeting : "Hello, "+name+"!" ]
+  }
+}
+```
+- from the terminal in the same directory as the newly created `hi.groovy`, run `spring jar hi.jar hi.groovy`
+- you'll be given a `.jar` that you can execute: `java -jar hi.jar`
+
+### Pushing to Cloud Foundry
+
+- `cf login` to ensure that you've authenticated against your Pivotal Web Services account. My session looked like this, yours will feature your own Cloud Foundry credentials.
+```
+> cf login
+
+API endpoint> api.run.pivotal.io
+
+Email> MY_EMAIL@HOST.com
+
+Password>
+Authenticating...
+OK
+
+Select an org (or press enter to skip):
+1. platform-eng
+2. codecafe
+
+Org> 1
+Targeted org platform-eng
+
+Targeted space joshlong
+
+
+API endpoint:   https://api.run.pivotal.io (API version: 2.44.0)
+User:           MY_EMAIL@HOST.com
+Org:            platform-eng
+Space:          joshlong
+
+```
+- `cf push -p hi.jar`
+<!-- To run everything, be sure to run `mvn clean install` in the `bootiful-applications/demo`, and `bootiful-microservices` folder. There's a script in the root called `build-all.sh`. Run that. It may take some time, so get some coffee. You can run each module using `java -jar target/module.jar` where `module.jar` is the name of the compiled `.jar` in the `target` directory. Alternatively, you can use `mvn spring-boot:run` in each module.
 
 ### Conference Wi-Fi & You
 If you're coming to a conference, you should run the `build-all.sh` script (or at least the `mvn` commands in the script) before coming to the conference to avoid the wrath of the conference wi-fi. Also, import `bootiful-application/demo/pom.xml` and `bootiful-microservices/pom.xml` into your favorite IDE before relying on conference wi-fi. And, lastly, I'd run `mvn spring-boot:run` at least once just to force Maven to download everything.
-
+ -->
