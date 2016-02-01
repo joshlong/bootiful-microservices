@@ -1,12 +1,14 @@
 package com.example;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.CommandLineRunner;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.cloud.sleuth.Sampler;
-import org.springframework.cloud.sleuth.sampler.AlwaysSampler;
 import org.springframework.cloud.stream.annotation.EnableBinding;
 import org.springframework.cloud.stream.messaging.Sink;
 import org.springframework.context.annotation.Bean;
@@ -18,7 +20,8 @@ import org.springframework.integration.annotation.IntegrationComponentScan;
 import org.springframework.integration.annotation.MessageEndpoint;
 import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -28,80 +31,93 @@ import java.util.stream.Stream;
 
 @EnableBinding(Sink.class)
 @EnableDiscoveryClient
-@IntegrationComponentScan
 @SpringBootApplication
+@IntegrationComponentScan
 public class ReservationServiceApplication {
 
-    @Bean
-    Sampler<?> sampler (){
-        return new AlwaysSampler();
-    }
+	@Bean
+	Sampler sampler() {
+		return () -> true;
+	}
 
-    public static void main(String[] args) {
-        SpringApplication.run(ReservationServiceApplication.class, args);
-    }
-}
-
-@Component
-class DummyCLR implements CommandLineRunner {
-
-    @Autowired
-    private ReservationRepository reservationRepository;
-
-    @Override
-    public void run(String... strings) throws Exception {
-        Stream.of("Andrew", "Kenny", "Casey").forEach(x -> reservationRepository.save(new Reservation(x)));
-    }
+	public static void main(String[] args) {
+		SpringApplication.run(ReservationServiceApplication.class, args);
+	}
 }
 
 @MessageEndpoint
 class ReservationProcessor {
 
-    @Autowired
-    private ReservationRepository reservationRepository;
+	@Autowired
+	private ReservationRepository reservationRepository;
 
-    @ServiceActivator(inputChannel = Sink.INPUT)
-    public void acceptNewReservation(String rn) {
-        this.reservationRepository.save(new Reservation(rn));
-    }
+	@ServiceActivator(inputChannel = Sink.INPUT)
+	public void accept(String rn) {
+		this.reservationRepository.save(new Reservation(rn));
+	}
+}
+
+@Component
+class DummyAR implements ApplicationRunner {
+
+	@Autowired
+	private ReservationRepository reservationRepository;
+
+	@Override
+	public void run(ApplicationArguments args) throws Exception {
+		Stream.of("Josh", "Dave", "Stephane", "Mark", "Phil")
+				.forEach(x -> reservationRepository.save(new Reservation(x)));
+	}
+}
+
+@RestController
+@RefreshScope
+class MessageRestController {
+
+	@Value("${message}")
+	private String message;
+
+	@RequestMapping("/message")
+	String msg() {
+		return this.message;
+	}
 }
 
 @RepositoryRestResource
 interface ReservationRepository extends JpaRepository<Reservation, Long> {
 
-    @RestResource(path = "by-name")
-    Collection<Reservation> findByReservationName(@Param("rn") String rn);
+	@RestResource(path = "by-name")
+	Collection<Reservation> findByReservationName(@Param("rn") String rn);
 }
 
 @Entity
 class Reservation {
 
-    @Id
-    @GeneratedValue
-    private Long id;
+	@Id
+	@GeneratedValue
+	private Long id;
+	private String reservationName;
 
-    private String reservationName;
+	public Reservation() {
+	}
 
-    @Override
-    public String toString() {
-        return "Reservation{" +
-                "id=" + id +
-                ", reservationName='" + reservationName + '\'' +
-                '}';
-    }
+	public Reservation(String reservationName) {
+		this.reservationName = reservationName;
+	}
 
-    Reservation() { // why JPA why??
-    }
+	@Override
+	public String toString() {
+		return "Reservation{" +
+				"id=" + id +
+				", reservationName='" + reservationName + '\'' +
+				'}';
+	}
 
-    public Reservation(String reservationName) {
-        this.reservationName = reservationName;
-    }
+	public Long getId() {
+		return id;
+	}
 
-    public Long getId() {
-        return id;
-    }
-
-    public String getReservationName() {
-        return reservationName;
-    }
+	public String getReservationName() {
+		return reservationName;
+	}
 }
