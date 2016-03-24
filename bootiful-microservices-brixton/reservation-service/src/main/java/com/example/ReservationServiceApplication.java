@@ -2,13 +2,13 @@ package com.example;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.ApplicationArguments;
-import org.springframework.boot.ApplicationRunner;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.actuate.health.Health;
+import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
-import org.springframework.cloud.sleuth.Sampler;
 import org.springframework.cloud.stream.annotation.EnableBinding;
 import org.springframework.cloud.stream.messaging.Sink;
 import org.springframework.context.annotation.Bean;
@@ -16,10 +16,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.data.rest.core.annotation.RestResource;
-import org.springframework.integration.annotation.IntegrationComponentScan;
 import org.springframework.integration.annotation.MessageEndpoint;
 import org.springframework.integration.annotation.ServiceActivator;
-import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -29,15 +27,32 @@ import javax.persistence.Id;
 import java.util.Collection;
 import java.util.stream.Stream;
 
-@EnableBinding(Sink.class)
+
 @EnableDiscoveryClient
+@EnableBinding(Sink.class)
 @SpringBootApplication
-@IntegrationComponentScan
 public class ReservationServiceApplication {
 
 	@Bean
-	Sampler sampler() {
-		return () -> true;
+	HealthIndicator healthIndicator() {
+		return new HealthIndicator() {
+			@Override
+			public Health health() {
+				return Health.status("I <3 Paris").build();
+			}
+		};
+	}
+
+	@Bean
+	CommandLineRunner commandLineRunner(ReservationRepository reservationRepository) {
+		return args -> {
+			Stream.of("Julien", "Josh",
+					"Pierre", "Aurelien",
+					"Siaka", "Benjamin",
+					"Yiquan", "Alex")
+					.forEach(nom -> reservationRepository.save(new Reservation(nom)));
+			reservationRepository.findAll().forEach(System.out::println);
+		};
 	}
 
 	public static void main(String[] args) {
@@ -45,29 +60,18 @@ public class ReservationServiceApplication {
 	}
 }
 
+
 @MessageEndpoint
 class ReservationProcessor {
 
 	@Autowired
 	private ReservationRepository reservationRepository;
 
-	@ServiceActivator(inputChannel = Sink.INPUT)
-	public void accept(String rn) {
+	@ServiceActivator(inputChannel = "input")
+	public void acceptNewReservations(String rn) {
 		this.reservationRepository.save(new Reservation(rn));
 	}
-}
 
-@Component
-class DummyAR implements ApplicationRunner {
-
-	@Autowired
-	private ReservationRepository reservationRepository;
-
-	@Override
-	public void run(ApplicationArguments args) throws Exception {
-		Stream.of("Josh", "Dave", "Stephane", "Mark", "Phil")
-				.forEach(x -> reservationRepository.save(new Reservation(x)));
-	}
 }
 
 @RestController
@@ -78,27 +82,28 @@ class MessageRestController {
 	private String message;
 
 	@RequestMapping("/message")
-	String msg() {
+	String read() {
 		return this.message;
 	}
+
 }
 
 @RepositoryRestResource
 interface ReservationRepository extends JpaRepository<Reservation, Long> {
 
+	// select * from reservations where reservation_name = :rn
 	@RestResource(path = "by-name")
 	Collection<Reservation> findByReservationName(@Param("rn") String rn);
 }
 
 @Entity
-class Reservation {
+class Reservation { // reservations
 
 	@Id
 	@GeneratedValue
-	private Long id;
-	private String reservationName;
+	private Long id;  // id
 
-	public Reservation() {
+	Reservation() { // pourquoi JPA pourquoi???????
 	}
 
 	public Reservation(String reservationName) {
@@ -113,11 +118,14 @@ class Reservation {
 				'}';
 	}
 
+	public String getReservationName() {
+		return reservationName;
+	}
+
 	public Long getId() {
 		return id;
 	}
 
-	public String getReservationName() {
-		return reservationName;
-	}
+	private String reservationName; // reservation_name
+
 }
