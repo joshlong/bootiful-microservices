@@ -27,20 +27,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
-
-interface ReservationChannels {
-
-	@Output
-	MessageChannel output();
-
-}
-
-@EnableBinding(ReservationChannels.class)
 @EnableZuulProxy
-@IntegrationComponentScan
 @EnableFeignClients
 @EnableDiscoveryClient
 @EnableCircuitBreaker
+@EnableBinding(ReservationChannels.class)
+@IntegrationComponentScan
 @SpringBootApplication
 public class ReservationClientApplication {
 
@@ -55,6 +47,12 @@ public class ReservationClientApplication {
 	}
 }
 
+interface ReservationChannels {
+
+	@Output
+	MessageChannel output();
+}
+
 @MessagingGateway
 interface ReservationWriter {
 
@@ -65,11 +63,17 @@ interface ReservationWriter {
 @FeignClient(name = "reservation-service")
 interface ReservationReader {
 
-//	@RequestMapping(method = RequestMethod.GET, value = "/reservations/{id}")
-//	Resource<Reservation> readReservation(@PathVariable("id") Long id);
-
 	@RequestMapping(method = RequestMethod.GET, value = "/reservations")
 	Resources<Reservation> readReservations();
+}
+
+class Reservation {
+
+	private String reservationName;
+
+	public String getReservationName() {
+		return reservationName;
+	}
 }
 
 @RestController
