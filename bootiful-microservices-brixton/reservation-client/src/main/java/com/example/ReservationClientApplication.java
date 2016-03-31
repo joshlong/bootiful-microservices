@@ -1,7 +1,6 @@
 package com.example;
 
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
-import com.sun.org.apache.regexp.internal.RE;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -14,13 +13,15 @@ import org.springframework.cloud.netflix.zuul.EnableZuulProxy;
 import org.springframework.cloud.stream.annotation.EnableBinding;
 import org.springframework.cloud.stream.annotation.Output;
 import org.springframework.context.annotation.Bean;
-import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.Resources;
 import org.springframework.integration.annotation.Gateway;
 import org.springframework.integration.annotation.IntegrationComponentScan;
 import org.springframework.integration.annotation.MessagingGateway;
 import org.springframework.messaging.MessageChannel;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
@@ -29,11 +30,11 @@ import java.util.stream.Collectors;
 
 @EnableZuulProxy
 @EnableFeignClients
-@EnableDiscoveryClient
 @EnableCircuitBreaker
-@EnableBinding(ReservationChannels.class)
-@IntegrationComponentScan
+@EnableDiscoveryClient
 @SpringBootApplication
+@IntegrationComponentScan
+@EnableBinding(ReservationChannels.class)
 public class ReservationClientApplication {
 
 	@Bean
@@ -57,28 +58,19 @@ interface ReservationChannels {
 interface ReservationWriter {
 
 	@Gateway(requestChannel = "output")
-	void writeReservation(String reservationName);
+	void write(String reservationName);
 }
 
-@FeignClient(name = "reservation-service")
+@FeignClient("reservation-service")
 interface ReservationReader {
 
-	@RequestMapping(method = RequestMethod.GET, value = "/reservations")
+	@RequestMapping(value = "/reservations", method = RequestMethod.GET)
 	Resources<Reservation> readReservations();
-}
-
-class Reservation {
-
-	private String reservationName;
-
-	public String getReservationName() {
-		return reservationName;
-	}
 }
 
 @RestController
 @RequestMapping("/reservations")
-class ReservationApiGatewayRestController {
+class ReservationServiceApiGatewayRestController {
 
 	@Autowired
 	private ReservationReader reader;
@@ -87,8 +79,13 @@ class ReservationApiGatewayRestController {
 	private ReservationWriter writer;
 
 	@RequestMapping(method = RequestMethod.POST)
-	public void write(@RequestBody Reservation r) {
-		this.writer.writeReservation(r.getReservationName());
+	public void write(@RequestBody Reservation reservation) {
+		/*
+			MessageChannel output = this.channels.output();
+			output.send(MessageBuilder.withPayload(reservation.getReservationName()).build());
+		*/
+
+		writer.write(reservation.getReservationName());
 	}
 
 	public Collection<String> fallback() {
@@ -98,13 +95,20 @@ class ReservationApiGatewayRestController {
 	@HystrixCommand(fallbackMethod = "fallback")
 	@RequestMapping(method = RequestMethod.GET, value = "/names")
 	public Collection<String> reservationNames() {
-		Resources<Reservation> reservations = this.reader.readReservations();
-		return reservations
+		return this.reader
+				.readReservations()
 				.getContent()
 				.stream()
 				.map(Reservation::getReservationName)
 				.collect(Collectors.toList());
 	}
+}
 
+class Reservation {
 
+	private String reservationName;
+
+	public String getReservationName() {
+		return reservationName;
+	}
 }
