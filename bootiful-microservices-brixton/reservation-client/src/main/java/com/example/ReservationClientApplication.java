@@ -2,9 +2,11 @@ package com.example;
 
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.cloud.netflix.feign.EnableFeignClients;
@@ -28,14 +30,24 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
-@EnableZuulProxy
+
+@EnableBinding(ReservationServiceChannels.class)
 @EnableFeignClients
+@EnableZuulProxy
+@IntegrationComponentScan
 @EnableCircuitBreaker
 @EnableDiscoveryClient
 @SpringBootApplication
-@IntegrationComponentScan
-@EnableBinding(ReservationChannels.class)
 public class ReservationClientApplication {
+
+
+	@Bean
+	CommandLineRunner discover(DiscoveryClient discoveryClient) {
+		return args ->
+				discoveryClient.getInstances("reservation-service")
+						.forEach(si -> System.out.println(
+								String.format("(%s) %s:%s", si.getServiceId(), si.getHost(), si.getPort())));
+	}
 
 	@Bean
 	@LoadBalanced
@@ -46,63 +58,97 @@ public class ReservationClientApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(ReservationClientApplication.class, args);
 	}
+
 }
 
-interface ReservationChannels {
+interface ReservationServiceChannels {
 
 	@Output
 	MessageChannel output();
 }
+
 
 @MessagingGateway
 interface ReservationWriter {
 
 	@Gateway(requestChannel = "output")
 	void write(String reservationName);
+
 }
 
 @FeignClient("reservation-service")
 interface ReservationReader {
 
-	@RequestMapping(value = "/reservations", method = RequestMethod.GET)
+	@RequestMapping(method = RequestMethod.GET, value = "/reservations")
 	Resources<Reservation> readReservations();
 }
 
 @RestController
 @RequestMapping("/reservations")
-class ReservationServiceApiGatewayRestController {
+class ReservationApiGatewayRestController {
+
+	private final RestTemplate restTemplate;
+	private final ReservationReader reader;
+	private final MessageChannel output;
+	private final ReservationWriter writer;
 
 	@Autowired
-	private ReservationReader reader;
-
-	@Autowired
-	private ReservationWriter writer;
-
-	@RequestMapping(method = RequestMethod.POST)
-	public void write(@RequestBody Reservation reservation) {
-		/*
-			MessageChannel output = this.channels.output();
-			output.send(MessageBuilder.withPayload(reservation.getReservationName()).build());
-		*/
-
-		writer.write(reservation.getReservationName());
+	public ReservationApiGatewayRestController(RestTemplate r,
+	                                           ReservationReader reservationReader,
+	                                           ReservationServiceChannels channels,
+	                                           ReservationWriter writer
+	) {
+		this.restTemplate = r;
+		this.output = channels.output();
+		this.writer = writer;
+		this.reader = reservationReader;
 	}
 
-	public Collection<String> fallback() {
+	@RequestMapping(method = RequestMethod.POST)
+	public void write(@RequestBody Reservation r) {
+		/*Message<String> msg = MessageBuilder.withPayload(r.getReservationName()).build();
+		this.output.send(msg);*/
+		this.writer.write(r.getReservationName());
+	}
+
+
+	public Collection<String> myCustomFallbackPlease() {
 		return new ArrayList<>();
 	}
 
-	@HystrixCommand(fallbackMethod = "fallback")
+	@HystrixCommand(fallbackMethod = "myCustomFallbackPlease")
 	@RequestMapping(method = RequestMethod.GET, value = "/names")
-	public Collection<String> reservationNames() {
-		return this.reader
+	public Collection<String> names() {
+
+	/*	ParameterizedTypeReference <Resources<Reservation>> ptr =
+				new ParameterizedTypeReference<Resources<Reservation>>() { };
+
+		ResponseEntity<Resources<Reservation>> responseEntity = this.restTemplate.exchange(
+				"http://reservation-service/reservations",
+				HttpMethod.GET,
+				null,
+				ptr
+		);
+
+		return responseEntity
+				.getBody()
+				.getContent()
+				.stream()
+				.map(Reservation::getReservationName)
+				.collect(Collectors.toList());
+*/
+		return reader
 				.readReservations()
 				.getContent()
 				.stream()
 				.map(Reservation::getReservationName)
 				.collect(Collectors.toList());
+
 	}
+
+
 }
+
 
 class Reservation {
 
