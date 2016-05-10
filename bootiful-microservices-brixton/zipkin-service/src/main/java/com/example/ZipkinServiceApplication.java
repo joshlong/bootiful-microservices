@@ -5,8 +5,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import zipkin.server.EnableZipkinServer;
 
-@EnableZipkinServer
 @EnableDiscoveryClient
+@EnableZipkinServer
 @SpringBootApplication
 public class ZipkinServiceApplication {
 
