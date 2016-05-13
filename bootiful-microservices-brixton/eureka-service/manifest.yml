@@ -1,0 +1,14 @@
+---
+applications:
+- name: eureka-service
+  memory: 512M
+  instances: 1
+  buildpack: java_buildpack
+  host: eureka-service-${random-word}
+  domain: cfapps.io
+  path: target/eureka-service.jar
+  services:
+      - config-service
+  env:
+    SPRING_PROFILES_ACTIVE: cloud
+    DEBUG: "true"

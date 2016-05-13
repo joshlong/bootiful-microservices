@@ -1,0 +1,18 @@
+---
+applications:
+- name: reservation-client
+  memory: 1024M
+  instances: 1
+  buildpack: java_buildpack
+  host: reservation-client-${random-word}
+  domain: cfapps.io
+  path: target/reservation-client.jar
+  services:
+    - config-service
+    - eureka-service
+    - zipkin-service
+    - reservations-rabbitmq
+  env:
+    SPRING_PROFILES_ACTIVE: cloud
+    DEBUG: "true"
+    debug: "true"

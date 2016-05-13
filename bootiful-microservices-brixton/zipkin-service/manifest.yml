@@ -1,0 +1,15 @@
+---
+applications:
+- name: zipkin-service
+  memory: 1024M
+  instances: 1
+  buildpack: java_buildpack
+  host: zipkin-service-${random-word}
+  domain: cfapps.io
+  path: target/zipkin-service.jar
+  services:
+      - config-service
+      - eureka-service
+  env:
+    SPRING_PROFILES_ACTIVE: cloud
+    DEBUG: "true"
