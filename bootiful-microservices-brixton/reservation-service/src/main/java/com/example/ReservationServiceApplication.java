@@ -49,7 +49,7 @@ class ReservationProcessor {
 		this.reservationRepository = reservationRepository;
 	}
 
-	@ServiceActivator (inputChannel = "input")
+	@ServiceActivator (inputChannel = Sink.INPUT)
 	public void acceptNewReservations (String reservationName){
 		this.reservationRepository.save(new Reservation(reservationName));
 	}
@@ -77,7 +77,7 @@ class CustomHealthIndicator implements HealthIndicator {
 
 	@Override
 	public Health health() {
-		return Health.status("I <3 Betfair!").build();
+		return Health.status("I <3 Spring!").build();
 	}
 }
 
