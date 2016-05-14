@@ -12,7 +12,6 @@ applications:
     - reservations-rabbitmq
     - config-service
     - eureka-service
-    - zipkin-service
   env:
     SPRING_PROFILES_ACTIVE: cloud
     DEBUG: "true"

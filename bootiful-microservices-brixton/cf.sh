@@ -91,11 +91,8 @@ function deploy_hystrix_dashboard(){
 }
 
 function deploy_zipkin_service(){
-    NAME=zipkin-service
-    deploy_app $NAME
-    deploy_service $NAME
+    deploy_app zipkin-service
 }
-
 
 function deploy_reservation_service(){
     deploy_app reservation-service

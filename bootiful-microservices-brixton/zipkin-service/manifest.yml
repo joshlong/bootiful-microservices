@@ -10,6 +10,7 @@ applications:
   services:
       - config-service
       - eureka-service
+      - reservations-rabbitmq
   env:
     SPRING_PROFILES_ACTIVE: cloud
     DEBUG: "true"

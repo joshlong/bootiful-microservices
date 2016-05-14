@@ -10,7 +10,6 @@ applications:
   services:
     - config-service
     - eureka-service
-    - zipkin-service
     - reservations-rabbitmq
   env:
     SPRING_PROFILES_ACTIVE: cloud
