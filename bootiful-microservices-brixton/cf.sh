@@ -18,6 +18,10 @@ CF_SPACE=${4:-$CF_SPACE}
 RESERVATIONS_DB=reservations-postgresql
 RESERVATIONS_MQ=reservations-rabbitmq
 
+
+
+## COMMON
+
 function init_services(){
     cf cs cloudamqp lemur $RESERVATIONS_MQ
     cf cs elephantsql turtle $RESERVATIONS_DB
@@ -51,8 +55,6 @@ function app_domain(){
     D=`cf apps | grep $1 | tr -s ' ' | cut -d' ' -f 6 | cut -d, -f1`
     echo $D
 }
-
-## COMMON
 
 function deploy_app(){
     APP_NAME=$1
