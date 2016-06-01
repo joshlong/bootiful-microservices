@@ -33,6 +33,8 @@ We will do it in the following way:
 13) Run zipkin-service
 14) Wait for the app (zipkin-service) to boot (port: 9411)
 15) Wait for the app (zipkin-service) to register in Eureka Server
+16) Send a test request to populate some entries in Zipkin
+17) Check if Zipkin has stored the trace for the aforementioned request
 
 EOF
 
