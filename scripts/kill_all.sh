@@ -11,3 +11,4 @@ kill_app hystrix-dashboard
 kill_app reservation-client
 kill_app reservation-service
 kill_app zipkin-service
+docker-compose kill
