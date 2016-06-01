@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 
-mvn -f bootiful-applications/demo/pom.xml clean install 
-mvn -f bootiful-microservices/pom.xml clean install 
+# Packages all apps in parallel using 6 cores
+./mvnw clean package -T 6
