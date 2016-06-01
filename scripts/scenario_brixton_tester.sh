@@ -5,8 +5,7 @@ source common.sh || source scripts/common.sh || echo "No common.sh script found.
 set -e
 
 echo -e "Ensure that all the apps are built!\n"
-#build_all_apps
-
+build_all_apps
 
 cat <<EOF
 This Bash file will run all the apps required for Brixton tests. NOTE: you neeed internet connection for
@@ -55,5 +54,5 @@ java_jar zipkin-service
 wait_for_app_to_boot_on_port 9411
 check_app_presence_in_discovery ZIPKIN-SERVICE
 
-#send_test_request 9876
-#echo -e "\n\nThe Angel Eureka Client successfully responded to the call"761
+send_test_request 9999 "reservations/names"
+echo -e "\n\nThe Brixton Reservation client successfully responded to the call"

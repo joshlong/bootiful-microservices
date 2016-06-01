@@ -9,6 +9,7 @@ TEST_ENDPOINT="${TEST_ENDPOINT:-check}"
 JAVA_PATH_TO_BIN="${JAVA_PATH_TO_BIN:-}" #for custom java path
 BUILD_FOLDER="${BUILD_FOLDER:-target}" #target - maven, build - gradle
 PRESENCE_CHECK_URL="${PRESENCE_CHECK_URL:-http://localhost:8761/eureka/apps}"
+TEST_PATH="${TEST_PATH:reservations/names}"
 
 # ${RETRIES} number of times will try to curl to /health endpoint to passed port $1 and localhost
 function wait_for_app_to_boot_on_port() {
@@ -76,13 +77,13 @@ function kill_all_apps() {
     ${ROOT_FOLDER}/scripts/kill_apps.sh
 }
 
-# Calls a POST curl to /person to an app on localhost with port $1
+# Calls a POST curl to /person to an app on localhost with port $1 on path $2
 function send_test_request() {
     READY_FOR_TESTS="no"
     for i in $( seq 1 "${RETRIES}" ); do
         sleep "${WAIT_TIME}"
-        echo -e "Sending a post to 127.0.0.1:$1/check . This is the response:\n"
-        curl --fail "127.0.0.1:${1}/${TEST_ENDPOINT}" && READY_FOR_TESTS="yes" && break
+        echo -e "Sending a post to 127.0.0.1:$1/$2 . This is the response:\n"
+        curl --fail "127.0.0.1:${1}/${2}" && READY_FOR_TESTS="yes" && break
         echo "Fail #$i/${RETRIES}... will try again in [${WAIT_TIME}] seconds"
     done
     if [[ "${READY_FOR_TESTS}" == "yes" ]] ; then
