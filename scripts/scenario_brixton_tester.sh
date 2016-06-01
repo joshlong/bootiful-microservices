@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+
+source common.sh || source scripts/common.sh || echo "No common.sh script found..."
+
+set -e
+
+echo -e "Ensure that all the apps are built!\n"
+#build_all_apps
+
+
+cat <<EOF
+This Bash file will run all the apps required for Brixton tests. NOTE: you neeed internet connection for
+the apps to download configuration from Github.
+
+We will do it in the following way:
+
+01) Run config-server
+02) Wait for the app (config-server) to boot (port: 8888)
+03) Run eureka-service
+04) Wait for the app (eureka-service) to boot (port: 8761)
+05) Run hystrix-dashboard
+06) Wait for the app (hystrix-dashboard) to boot (port: 8010)
+07) Run reservation-client
+08) Wait for the app (reservation-client) to boot (port: 9999)
+09) Wait for the app (reservation-client) to register in Eureka Server
+10) Run reservation-service
+11) Wait for the app (reservation-service) to boot (port: 8000)
+12) Wait for the app (reservation-service) to register in Eureka Server
+13) Run zipkin-service
+14) Wait for the app (zipkin-service) to boot (port: 9411)
+15) Wait for the app (zipkin-service) to register in Eureka Server
+
+EOF
+
+cd $ROOT_FOLDER/bootiful-microservices-brixton
+
+java_jar config-service
+wait_for_app_to_boot_on_port 8888
+
+java_jar eureka-service
+wait_for_app_to_boot_on_port 8761
+
+java_jar hystrix-dashboard
+wait_for_app_to_boot_on_port 8010
+
+java_jar reservation-client
+wait_for_app_to_boot_on_port 9999
+check_app_presence_in_discovery RESERVATION-CLIENT
+
+java_jar reservation-service
+wait_for_app_to_boot_on_port 8000
+check_app_presence_in_discovery RESERVATION-SERVICE
+
+java_jar zipkin-service
+wait_for_app_to_boot_on_port 9411
+check_app_presence_in_discovery ZIPKIN-SERVICE
+
+#send_test_request 9876
+#echo -e "\n\nThe Angel Eureka Client successfully responded to the call"761
