@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!--
+
+            THIS POM IS ONLY FOR EASY IMPORT TO IDE
+
+    -->
+    <groupId>com.example</groupId>
+    <artifactId>bootiful-microservices</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>bootiful-applications/reservation-service</module>
+        <module>bootiful-microservices-angel/config-service</module>
+        <module>bootiful-microservices-angel/eureka-service</module>
+        <module>bootiful-microservices-angel/hystrix-dashboard</module>
+        <module>bootiful-microservices-angel/reservation-client</module>
+        <module>bootiful-microservices-angel/reservation-service</module>
+        <module>bootiful-microservices-brixton/config-service</module>
+        <module>bootiful-microservices-brixton/eureka-service</module>
+        <module>bootiful-microservices-brixton/hystrix-dashboard</module>
+        <module>bootiful-microservices-brixton/reservation-service</module>
+        <module>bootiful-microservices-brixton/reservation-client</module>
+        <module>bootiful-microservices-brixton/zipkin-service</module>
+    </modules>
+
+    <properties>
+        <maven.install.skip>true</maven.install.skip>
+        <main.basedir>${basedir}</main.basedir>
+    </properties>
+
+</project>
