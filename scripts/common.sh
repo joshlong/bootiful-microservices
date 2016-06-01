@@ -3,13 +3,16 @@
 set -e
 
 WAIT_TIME="${WAIT_TIME:-5}"
-RETRIES="${RETRIES:-70}"
+RETRIES="${RETRIES:-10}"
 SERVICE_PORT="${SERVICE_PORT:-8081}"
 TEST_ENDPOINT="${TEST_ENDPOINT:-check}"
 JAVA_PATH_TO_BIN="${JAVA_PATH_TO_BIN:-}" #for custom java path
 BUILD_FOLDER="${BUILD_FOLDER:-target}" #target - maven, build - gradle
 PRESENCE_CHECK_URL="${PRESENCE_CHECK_URL:-http://localhost:8761/eureka/apps}"
 TEST_PATH="${TEST_PATH:reservations/names}"
+HEALTH_HOST="${DEFAULT_HEALTH_HOST:localhost}" #provide DEFAULT_HEALT HOST as host of your docker machine
+RABBIT_MQ_PORT="${RABBIT_MQ_PORT:-9672}"
+SYSTEM_PROPS="-Dspring.rabbitmq.host=${HEALTH_HOST} -Dspring.rabbitmq.port=${RABBIT_MQ_PORT}"
 
 # ${RETRIES} number of times will try to curl to /health endpoint to passed port $1 and localhost
 function wait_for_app_to_boot_on_port() {
@@ -48,7 +51,7 @@ function check_app_presence_in_discovery() {
 function java_jar() {
     echo -e "\n\nStarting app $1 \n"
     local APP_JAVA_PATH=$1/${BUILD_FOLDER}
-    local EXPRESSION="nohup ${JAVA_PATH_TO_BIN}java $2 $MEM_ARGS -jar $APP_JAVA_PATH/*.jar >$APP_JAVA_PATH/nohup.log &"
+    local EXPRESSION="nohup ${JAVA_PATH_TO_BIN}java $2 $SYSTEM_PROPS -jar $APP_JAVA_PATH/*.jar >$APP_JAVA_PATH/nohup.log &"
     echo -e "\nTrying to run [$EXPRESSION]"
     eval $EXPRESSION
     pid=$!
@@ -82,13 +85,35 @@ function send_test_request() {
     READY_FOR_TESTS="no"
     for i in $( seq 1 "${RETRIES}" ); do
         sleep "${WAIT_TIME}"
-        echo -e "Sending a post to 127.0.0.1:$1/$2 . This is the response:\n"
+        echo -e "Sending a GET to 127.0.0.1:$1/$2 . This is the response:\n"
         curl --fail "127.0.0.1:${1}/${2}" && READY_FOR_TESTS="yes" && break
         echo "Fail #$i/${RETRIES}... will try again in [${WAIT_TIME}] seconds"
     done
     if [[ "${READY_FOR_TESTS}" == "yes" ]] ; then
         return 0
     else
+        return 1
+    fi
+}
+
+# Calls a GET to zipkin to dependencies
+function check_trace() {
+    echo -e "\nChecking if Zipkin has stored the trace"
+    local STRING_TO_FIND="\"parent\":\"reservation-client\",\"child\":\"reservation-service\""
+    local CURRENT_TIME=`python -c 'import time; print int(round(time.time() * 1000))'`
+    local URL_TO_CALL="http://localhost:9411/api/v1/dependencies?endTs=$CURRENT_TIME"
+    READY_FOR_TESTS="no"
+    for i in $( seq 1 "${RETRIES}" ); do
+        sleep "${WAIT_TIME}"
+        echo -e "Sending a GET to $URL_TO_CALL . This is the response:\n"
+        curl --fail "$URL_TO_CALL" | grep $STRING_TO_FIND &&  READY_FOR_TESTS="yes" && break
+        echo "Fail #$i/${RETRIES}... will try again in [${WAIT_TIME}] seconds"
+    done
+    if [[ "${READY_FOR_TESTS}" == "yes" ]] ; then
+        echo -e "\n\nSuccess! Zipkin is working fine!"
+        return 0
+    else
+        echo -e "\n\nFailure...! Zipkin failed to store the trace!"
         return 1
     fi
 }

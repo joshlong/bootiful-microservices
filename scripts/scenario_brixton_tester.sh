@@ -5,11 +5,16 @@ source common.sh || source scripts/common.sh || echo "No common.sh script found.
 set -e
 
 echo -e "Ensure that all the apps are built!\n"
-build_all_apps
+#build_all_apps
 
 cat <<EOF
-This Bash file will run all the apps required for Brixton tests. NOTE: you neeed internet connection for
-the apps to download configuration from Github.
+This Bash file will run all the apps required for Brixton tests.
+
+NOTE:
+
+- you need internet connection for the apps to download configuration from Github.
+- you need docker-compose for RabbitMQ to start
+- you need python to calculate current millis
 
 We will do it in the following way:
 
@@ -30,6 +35,9 @@ We will do it in the following way:
 15) Wait for the app (zipkin-service) to register in Eureka Server
 
 EOF
+
+echo "Starting RabbitMQ on port 9672 with docker-compose"
+docker-compose up -d
 
 cd $ROOT_FOLDER/bootiful-microservices-brixton
 
@@ -56,3 +64,5 @@ check_app_presence_in_discovery ZIPKIN-SERVICE
 
 send_test_request 9999 "reservations/names"
 echo -e "\n\nThe Brixton Reservation client successfully responded to the call"
+
+check_trace
