@@ -1,3 +1,3 @@
+#!/usr/bin/env bash
 
-mvn -f bootiful-applications/demo/pom.xml clean install 
-mvn -f bootiful-microservices/pom.xml clean install 
+./scripts/build_all.sh
