@@ -5,7 +5,7 @@ source common.sh || source scripts/common.sh || echo "No common.sh script found.
 set -e
 
 echo -e "Ensure that all the apps are built!\n"
-#build_all_apps
+build_all_apps
 
 cat <<EOF
 This Bash file will run all the apps required for Brixton tests.
