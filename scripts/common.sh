@@ -6,7 +6,10 @@ WAIT_TIME="${WAIT_TIME:-5}"
 RETRIES="${RETRIES:-10}"
 SERVICE_PORT="${SERVICE_PORT:-8081}"
 TEST_ENDPOINT="${TEST_ENDPOINT:-check}"
-JAVA_PATH_TO_BIN="${JAVA_PATH_TO_BIN:-}" #for custom java path
+JAVA_PATH_TO_BIN="${JAVA_HOME}/bin/"
+if [[ -z "${JAVA_HOME}" ]] ; then
+    JAVA_PATH_TO_BIN=""
+fi
 BUILD_FOLDER="${BUILD_FOLDER:-target}" #target - maven, build - gradle
 PRESENCE_CHECK_URL="${PRESENCE_CHECK_URL:-http://localhost:8761/eureka/apps}"
 TEST_PATH="${TEST_PATH:reservations/names}"
