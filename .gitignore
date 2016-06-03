@@ -1,6 +1,5 @@
 target/
 *.iml
-.mvn
 .idea
 .settings/
 .classpath
