@@ -38,6 +38,9 @@ We will do it in the following way:
 
 EOF
 
+echo "Ensure that apps are not running"
+kill_all_apps
+
 echo "Starting RabbitMQ on port 9672 with docker-compose"
 docker-compose up -d
 
