@@ -42,7 +42,7 @@ echo "Ensure that apps are not running"
 kill_all_apps
 
 echo "Starting RabbitMQ on port 9672 with docker-compose"
-docker-compose up -d
+docker-compose up -d || echo "RabbitMQ seems to be working already or some other exception occurred"
 
 cd $ROOT_FOLDER/bootiful-microservices-brixton
 
