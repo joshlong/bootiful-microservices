@@ -80,7 +80,7 @@ function build_all_apps() {
 
 # Kill all the apps
 function kill_all_apps() {
-    ${ROOT_FOLDER}/scripts/kill_apps.sh
+    ${ROOT_FOLDER}/scripts/kill_all.sh
 }
 
 # Calls a POST curl to /person to an app on localhost with port $1 on path $2
