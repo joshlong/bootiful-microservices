@@ -21,7 +21,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>1.8</java.version>
-        <spring.cloud.release.version>Brixton.RELEASE</spring.cloud.release.version>
+        <spring.cloud.release.version>Brixton.SR1</spring.cloud.release.version>
     </properties>
 
     <dependencies>
