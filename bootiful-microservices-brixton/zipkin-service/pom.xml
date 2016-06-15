@@ -16,7 +16,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>1.8</java.version>
-        <spring.cloud.release.version>Brixton.RELEASE</spring.cloud.release.version>
+        <spring.cloud.release.version>Brixton.SR1</spring.cloud.release.version>
     </properties>
     <dependencies>
         <dependency>
@@ -27,17 +27,10 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-jdbc</artifactId>
         </dependency>
-        <!-- Brixton.RELEASE -->
-        <dependency>
-            <groupId>io.zipkin</groupId>
-            <artifactId>zipkin-ui</artifactId>
-        </dependency>
-        <!-- Brixton.BUILD-SNAPSHOT -->
-        <!--
         <dependency>
             <groupId>io.zipkin.java</groupId>
             <artifactId>zipkin-autoconfigure-ui</artifactId>
-        </dependency>-->
+        </dependency>
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-eureka</artifactId>
