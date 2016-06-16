@@ -12,8 +12,8 @@ if [[ -z "${JAVA_HOME}" ]] ; then
 fi
 BUILD_FOLDER="${BUILD_FOLDER:-target}" #target - maven, build - gradle
 PRESENCE_CHECK_URL="${PRESENCE_CHECK_URL:-http://localhost:8761/eureka/apps}"
-TEST_PATH="${TEST_PATH:reservations/names}"
-HEALTH_HOST="${DEFAULT_HEALTH_HOST:localhost}" #provide DEFAULT_HEALT HOST as host of your docker machine
+TEST_PATH="${TEST_PATH:-reservations/names}"
+HEALTH_HOST="${DEFAULT_HEALTH_HOST:-localhost}" #provide DEFAULT_HEALT HOST as host of your docker machine
 RABBIT_MQ_PORT="${RABBIT_MQ_PORT:-9672}"
 SYSTEM_PROPS="-Dspring.rabbitmq.host=${HEALTH_HOST} -Dspring.rabbitmq.port=${RABBIT_MQ_PORT}"
 
