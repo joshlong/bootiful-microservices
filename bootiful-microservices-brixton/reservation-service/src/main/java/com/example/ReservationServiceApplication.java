@@ -10,14 +10,15 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.cloud.stream.annotation.EnableBinding;
-import org.springframework.cloud.stream.messaging.Sink;
-import org.springframework.cloud.stream.messaging.Source;
+import org.springframework.cloud.stream.annotation.Input;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import org.springframework.data.rest.core.annotation.RestResource;
 import org.springframework.integration.annotation.MessageEndpoint;
 import org.springframework.integration.annotation.ServiceActivator;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.SubscribableChannel;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -29,7 +30,13 @@ import javax.persistence.Id;
 import java.util.Collection;
 import java.util.stream.Stream;
 
-@EnableBinding (Sink.class )
+
+interface ReservationServiceChannels {
+	@Input
+	SubscribableChannel input();
+}
+
+@EnableBinding(ReservationServiceChannels.class)
 @EnableDiscoveryClient
 @SpringBootApplication
 public class ReservationServiceApplication {
@@ -42,59 +49,65 @@ public class ReservationServiceApplication {
 @MessageEndpoint
 class ReservationProcessor {
 
-	private final ReservationRepository reservationRepository ;
+	private final ReservationRepository reservationRepository;
 
 	@Autowired
 	public ReservationProcessor(ReservationRepository reservationRepository) {
 		this.reservationRepository = reservationRepository;
 	}
 
-	@ServiceActivator (inputChannel = Sink.INPUT)
-	public void acceptNewReservations (String reservationName){
-		this.reservationRepository.save(new Reservation(reservationName));
-	}
-}
+	@ServiceActivator(inputChannel = "input")
+	public void acceptNewReservations(Message<String> msg) {
+		String rn = msg.getPayload();
 
-@RefreshScope
-@RestController
-class MessageRestController {
-
-	private final String message;
-
-	@Autowired
-	public MessageRestController(@Value("${message}") String message) {
-		this.message = message;
-	}
-
-	@RequestMapping(method = RequestMethod.GET, value = "/message")
-	String read() {
-		return this.message;
+		this.reservationRepository.save(new Reservation(rn));
 	}
 }
 
 @Component
-class CustomHealthIndicator implements HealthIndicator {
+class NexonHealthIndicator implements HealthIndicator {
 
 	@Override
 	public Health health() {
-		return Health.status("I <3 Spring!").build();
+		return Health.status("I <3 Nexon!!").build();
+	}
+}
+
+
+@RestController
+@RefreshScope
+class MessageRestController {
+
+	@RequestMapping(method = RequestMethod.GET, value = "/message")
+	public String read() {
+		return this.value;
+	}
+
+	private final String value;
+
+	@Autowired
+	public MessageRestController(
+			@Value("${message}") String value) {
+		this.value = value;
 	}
 }
 
 @Component
-class DummyCLR implements CommandLineRunner {
+class SampleRecordsCLR implements CommandLineRunner {
 
 	private final ReservationRepository reservationRepository;
 
 	@Autowired
-	public DummyCLR(ReservationRepository reservationRepository) {
+	public SampleRecordsCLR(ReservationRepository reservationRepository) {
 		this.reservationRepository = reservationRepository;
 	}
 
 	@Override
-	public void run(String... strings) throws Exception {
-		Stream.of("Tim", "Josh", "Jose", "Tasha", "Rod", "Spencer", "Dr. Suess", "Dr. Who")
-				.forEach(n -> reservationRepository.save(new Reservation(n)));
+	public void run(String... args) throws Exception {
+		Stream.of("Josh", "Jungryeol", "Nosung", "Hyobeom",
+				"Soeun", "Seunghue", "Peter", "Jooyong")
+				.forEach(name -> reservationRepository.save(new Reservation(name)));
+
 		reservationRepository.findAll().forEach(System.out::println);
 	}
 }
@@ -105,7 +118,6 @@ interface ReservationRepository extends JpaRepository<Reservation, Long> {
 	@RestResource(path = "by-name")
 	Collection<Reservation> findByReservationName(@Param("rn") String rn);
 }
-
 
 @Entity
 class Reservation {
@@ -132,7 +144,7 @@ class Reservation {
 				'}';
 	}
 
-	Reservation() {// why JPA why??
+	Reservation() {// why JPA why???
 	}
 
 	public Reservation(String reservationName) {
