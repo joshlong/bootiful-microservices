@@ -26,6 +26,12 @@
         <module>bootiful-microservices-brixton/reservation-service</module>
         <module>bootiful-microservices-brixton/reservation-client</module>
         <module>bootiful-microservices-brixton/zipkin-service</module>
+        <module>bootiful-microservices-camden/config-service</module>
+        <module>bootiful-microservices-camden/eureka-service</module>
+        <module>bootiful-microservices-camden/hystrix-dashboard</module>
+        <module>bootiful-microservices-camden/reservation-service</module>
+        <module>bootiful-microservices-camden/reservation-client</module>
+        <module>bootiful-microservices-camden/zipkin-service</module>
     </modules>
 
     <properties>

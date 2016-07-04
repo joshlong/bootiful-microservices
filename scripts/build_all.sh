@@ -2,7 +2,8 @@
 
 source common.sh || source scripts/common.sh || echo "No common.sh script found..."
 
-ADDITIONAL_MAVEN_OPTS="${ADDITIONAL_MAVEN_OPTS:--Dspring.cloud.release.version=Brixton.BUILD-SNAPSHOT}"
+BOM_VERSION="${BOM_VERSION:-Brixton.BUILD-SNAPSHOT}"
+ADDITIONAL_MAVEN_OPTS="${ADDITIONAL_MAVEN_OPTS:--Dspring.cloud.release.version=$BOM_VERSION}"
 
 set -e
 

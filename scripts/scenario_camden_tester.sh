@@ -4,13 +4,13 @@ source common.sh || source scripts/common.sh || echo "No common.sh script found.
 
 set -e
 
-export BOM_VERSION="Brixton.BUILD-SNAPSHOT"
+export BOM_VERSION="Camden.BUILD-SNAPSHOT"
 echo -e "Ensure that all the apps are built with $BOM_VERSION!\n"
 build_all_apps
 
 cat <<EOF
 
-This Bash file will run all the apps required for Brixton tests.
+This Bash file will run all the apps required for Camden tests.
 
 NOTE:
 
@@ -46,7 +46,7 @@ kill_all_apps
 echo "Starting RabbitMQ on port 9672 with docker-compose"
 docker-compose up -d || echo "RabbitMQ seems to be working already or some other exception occurred"
 
-cd $ROOT_FOLDER/bootiful-microservices-brixton
+cd $ROOT_FOLDER/bootiful-microservices-camden
 
 java_jar config-service
 wait_for_app_to_boot_on_port 8888
