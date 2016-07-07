@@ -5,6 +5,11 @@ source common.sh || source scripts/common.sh || echo "No common.sh script found.
 set -e
 
 export BOM_VERSION="Brixton.BUILD-SNAPSHOT"
+export PROFILE="brixton"
+
+echo "Ensure that apps are not running"
+kill_all_apps
+
 echo -e "Ensure that all the apps are built with $BOM_VERSION!\n"
 build_all_apps
 
@@ -40,13 +45,10 @@ We will do it in the following way:
 
 EOF
 
-echo "Ensure that apps are not running"
-kill_all_apps
-
 echo "Starting RabbitMQ on port 9672 with docker-compose"
 docker-compose up -d || echo "RabbitMQ seems to be working already or some other exception occurred"
 
-cd $ROOT_FOLDER/bootiful-microservices-brixton
+cd $ROOT_FOLDER/bootiful-microservices-$PROFILE
 
 java_jar config-service
 wait_for_app_to_boot_on_port 8888
@@ -70,6 +72,7 @@ wait_for_app_to_boot_on_port 9411
 check_app_presence_in_discovery ZIPKIN-SERVICE
 
 send_test_request 9999 "reservations/names"
-echo -e "\n\nThe Brixton Reservation client successfully responded to the call"
+echo -e "\n\nThe $BOM_VERSION Reservation client successfully responded to the call"
 
 check_trace
+check_span_names

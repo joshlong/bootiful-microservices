@@ -121,6 +121,46 @@ function check_trace() {
     fi
 }
 
+function check_span_names_for_service() {
+    local EXPECTED_ENTRIES=$1
+    local PARSED_EXPECTED_ENTRIES
+    local RECEIVED_RESPONSE=$2
+    local SERVICE_NAME=$3
+    local READY_FOR_TESTS="no"
+
+    echo -e "\nChecking if Sleuth has properly stored names of spans [$EXPECTED_ENTRIES] for service [$SERVICE_NAME]"
+    echo -e "\nThe response is $RECEIVED_RESPONSE"
+
+    # Split var by ',' and put into array
+    IFS=',' read -ra PARSED_EXPECTED_ENTRIES <<< "$EXPECTED_ENTRIES"
+
+    for i in ${PARSED_EXPECTED_ENTRIES[@]}
+    do
+         echo $RECEIVED_RESPONSE | grep "$i" && echo "The array contains $i" && READY_FOR_TESTS="yes"
+    done
+
+    if [[ "${READY_FOR_TESTS}" == "yes" ]] ; then
+        echo -e "\n\n$SERVICE_NAME contains proper span names!"
+        return 0
+    fi
+    echo -e "\n\nFailure...! $SERVICE_NAME does not contain proper span names!"
+    return 1
+}
+
+# Calls a GET to zipkin to check span names for services
+function check_span_names() {
+    local RESERVATION_CLIENT_URL_TO_CALL="http://localhost:9411/api/v1/spans?serviceName=reservation-client"
+    local RESERVATION_SERVICE_URL_TO_CALL="http://localhost:9411/api/v1/spans?serviceName=reservation-service"
+    local EXPECTED_RESERVATION_CLIENT_ENTRIES=("http:/reservations","http:/reservations/names","names")
+    local EXPECTED_RESERVATION_SERVICE_ENTRIES=("get-collection-resource","http:/reservations")
+
+    local RESERVATION_CLIENT_RESPONSE=`curl --fail "$RESERVATION_CLIENT_URL_TO_CALL"`
+    local RESERVATION_SERVICE_RESPONSE=`curl --fail "$RESERVATION_SERVICE_URL_TO_CALL"`
+
+    check_span_names_for_service $EXPECTED_RESERVATION_CLIENT_ENTRIES $RESERVATION_CLIENT_RESPONSE "Reservation Client"
+    check_span_names_for_service $EXPECTED_RESERVATION_SERVICE_ENTRIES $RESERVATION_SERVICE_RESPONSE "Reservation Service"
+}
+
 export WAIT_TIME
 export RETIRES
 export SERVICE_PORT
@@ -133,6 +173,8 @@ export -f kill_app
 export -f kill_all_apps
 export -f check_app_presence_in_discovery
 export -f send_test_request
+export -f check_span_names
+export -f check_span_names_for_service
 
 ROOT_FOLDER=`pwd`
 if [[ ! -e "${ROOT_FOLDER}/.git" ]]; then

@@ -13,30 +13,73 @@
     <version>0.0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
-    <modules>
-        <module>bootiful-applications/reservation-service</module>
-        <module>bootiful-microservices-angel/config-service</module>
-        <module>bootiful-microservices-angel/eureka-service</module>
-        <module>bootiful-microservices-angel/hystrix-dashboard</module>
-        <module>bootiful-microservices-angel/reservation-client</module>
-        <module>bootiful-microservices-angel/reservation-service</module>
-        <module>bootiful-microservices-brixton/config-service</module>
-        <module>bootiful-microservices-brixton/eureka-service</module>
-        <module>bootiful-microservices-brixton/hystrix-dashboard</module>
-        <module>bootiful-microservices-brixton/reservation-service</module>
-        <module>bootiful-microservices-brixton/reservation-client</module>
-        <module>bootiful-microservices-brixton/zipkin-service</module>
-        <module>bootiful-microservices-camden/config-service</module>
-        <module>bootiful-microservices-camden/eureka-service</module>
-        <module>bootiful-microservices-camden/hystrix-dashboard</module>
-        <module>bootiful-microservices-camden/reservation-service</module>
-        <module>bootiful-microservices-camden/reservation-client</module>
-        <module>bootiful-microservices-camden/zipkin-service</module>
-    </modules>
-
     <properties>
         <maven.install.skip>true</maven.install.skip>
         <main.basedir>${basedir}</main.basedir>
     </properties>
+
+    <profiles>
+        <profile>
+            <id>all</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <modules>
+                <module>bootiful-applications/reservation-service</module>
+                <module>bootiful-microservices-angel/config-service</module>
+                <module>bootiful-microservices-angel/eureka-service</module>
+                <module>bootiful-microservices-angel/hystrix-dashboard</module>
+                <module>bootiful-microservices-angel/reservation-client</module>
+                <module>bootiful-microservices-angel/reservation-service</module>
+                <module>bootiful-microservices-brixton/config-service</module>
+                <module>bootiful-microservices-brixton/eureka-service</module>
+                <module>bootiful-microservices-brixton/hystrix-dashboard</module>
+                <module>bootiful-microservices-brixton/reservation-service</module>
+                <module>bootiful-microservices-brixton/reservation-client</module>
+                <module>bootiful-microservices-brixton/zipkin-service</module>
+                <module>bootiful-microservices-camden/config-service</module>
+                <module>bootiful-microservices-camden/eureka-service</module>
+                <module>bootiful-microservices-camden/hystrix-dashboard</module>
+                <module>bootiful-microservices-camden/reservation-service</module>
+                <module>bootiful-microservices-camden/reservation-client</module>
+                <module>bootiful-microservices-camden/zipkin-service</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>angel</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <modules>
+                <module>bootiful-microservices-angel/config-service</module>
+                <module>bootiful-microservices-angel/eureka-service</module>
+                <module>bootiful-microservices-angel/hystrix-dashboard</module>
+                <module>bootiful-microservices-angel/reservation-client</module>
+                <module>bootiful-microservices-angel/reservation-service</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>brixton</id>
+            <modules>
+                <module>bootiful-microservices-brixton/config-service</module>
+                <module>bootiful-microservices-brixton/eureka-service</module>
+                <module>bootiful-microservices-brixton/hystrix-dashboard</module>
+                <module>bootiful-microservices-brixton/reservation-service</module>
+                <module>bootiful-microservices-brixton/reservation-client</module>
+                <module>bootiful-microservices-brixton/zipkin-service</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>camden</id>
+            <modules>
+                <module>bootiful-microservices-camden/config-service</module>
+                <module>bootiful-microservices-camden/eureka-service</module>
+                <module>bootiful-microservices-camden/hystrix-dashboard</module>
+                <module>bootiful-microservices-camden/reservation-service</module>
+                <module>bootiful-microservices-camden/reservation-client</module>
+                <module>bootiful-microservices-camden/zipkin-service</module>
+            </modules>
+        </profile>
+    </profiles>
 
 </project>
