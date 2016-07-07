@@ -12,4 +12,4 @@ kill_app hystrix-dashboard
 kill_app reservation-client
 kill_app reservation-service
 kill_app zipkin-service
-docker-compose kill && echo "Killed rabbit" || echo "Failed to kill Rabbit"
+docker-compose kill && echo "Killed rabbit" && exit 0 || echo "Failed to kill Rabbit" && exit 0
