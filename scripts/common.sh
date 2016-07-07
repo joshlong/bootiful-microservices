@@ -28,7 +28,7 @@ function curl_health_endpoint() {
     local READY_FOR_TESTS=1
     for i in $( seq 1 "${RETRIES}" ); do
         sleep "${WAIT_TIME}"
-        curl -m 5 "${PASSED_HOST}:$1/health" && READY_FOR_TESTS=0 && break
+        curl -sS -m 5 "${PASSED_HOST}:$1/health" && READY_FOR_TESTS=0 && break
         echo "Fail #$i/${RETRIES}... will try again in [${WAIT_TIME}] seconds"
     done
     return $READY_FOR_TESTS
@@ -40,7 +40,7 @@ function check_app_presence_in_discovery() {
     READY_FOR_TESTS="no"
     for i in $( seq 1 "${RETRIES}" ); do
         sleep "${WAIT_TIME}"
-        curl -m 5 $PRESENCE_CHECK_URL | grep $1 && READY_FOR_TESTS="yes" && break
+        curl -sS -m 5 $PRESENCE_CHECK_URL | grep $1 && READY_FOR_TESTS="yes" && break
         echo "Fail #$i/${RETRIES}... will try again in [${WAIT_TIME}] seconds"
     done
     if [[ "${READY_FOR_TESTS}" == "yes" ]] ; then
@@ -89,7 +89,7 @@ function send_test_request() {
     for i in $( seq 1 "${RETRIES}" ); do
         sleep "${WAIT_TIME}"
         echo -e "Sending a GET to 127.0.0.1:$1/$2 . This is the response:\n"
-        curl --fail "127.0.0.1:${1}/${2}" && READY_FOR_TESTS="yes" && break
+        curl -sS --fail "127.0.0.1:${1}/${2}" && READY_FOR_TESTS="yes" && break
         echo "Fail #$i/${RETRIES}... will try again in [${WAIT_TIME}] seconds"
     done
     if [[ "${READY_FOR_TESTS}" == "yes" ]] ; then
@@ -109,7 +109,7 @@ function check_trace() {
     for i in $( seq 1 "${RETRIES}" ); do
         sleep "${WAIT_TIME}"
         echo -e "Sending a GET to $URL_TO_CALL . This is the response:\n"
-        curl --fail "$URL_TO_CALL" | grep $STRING_TO_FIND &&  READY_FOR_TESTS="yes" && break
+        curl -sS --fail "$URL_TO_CALL" | grep $STRING_TO_FIND &&  READY_FOR_TESTS="yes" && break
         echo "Fail #$i/${RETRIES}... will try again in [${WAIT_TIME}] seconds"
     done
     if [[ "${READY_FOR_TESTS}" == "yes" ]] ; then
@@ -154,8 +154,8 @@ function check_span_names() {
     local EXPECTED_RESERVATION_CLIENT_ENTRIES=("http:/reservations","http:/reservations/names","names")
     local EXPECTED_RESERVATION_SERVICE_ENTRIES=("get-collection-resource","http:/reservations")
 
-    local RESERVATION_CLIENT_RESPONSE=`curl --fail "$RESERVATION_CLIENT_URL_TO_CALL"`
-    local RESERVATION_SERVICE_RESPONSE=`curl --fail "$RESERVATION_SERVICE_URL_TO_CALL"`
+    local RESERVATION_CLIENT_RESPONSE=`curl -sS --fail "$RESERVATION_CLIENT_URL_TO_CALL"`
+    local RESERVATION_SERVICE_RESPONSE=`curl -sS --fail "$RESERVATION_SERVICE_URL_TO_CALL"`
 
     check_span_names_for_service $EXPECTED_RESERVATION_CLIENT_ENTRIES $RESERVATION_CLIENT_RESPONSE "Reservation Client"
     check_span_names_for_service $EXPECTED_RESERVATION_SERVICE_ENTRIES $RESERVATION_SERVICE_RESPONSE "Reservation Service"
