@@ -76,3 +76,5 @@ echo -e "\n\nThe $BOM_VERSION Reservation client successfully responded to the c
 
 check_trace
 check_span_names
+
+cd $ROOT_FOLDER
