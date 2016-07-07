@@ -4,8 +4,8 @@ source common.sh || source scripts/common.sh || echo "No common.sh script found.
 
 set -e
 
-export BOM_VERSION="Brixton.BUILD-SNAPSHOT"
-export PROFILE="brixton"
+export BOM_VERSION="Camden.BUILD-SNAPSHOT"
+export PROFILE="camden"
 
 echo "Ensure that apps are not running"
 kill_all_apps
@@ -15,7 +15,7 @@ build_all_apps
 
 cat <<EOF
 
-This Bash file will run all the apps required for Brixton tests.
+This Bash file will run all the apps required for Camden tests.
 
 NOTE:
 
