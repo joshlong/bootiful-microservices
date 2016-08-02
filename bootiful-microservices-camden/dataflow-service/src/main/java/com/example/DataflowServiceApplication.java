@@ -3,14 +3,14 @@ package com.example;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
-import zipkin.server.EnableZipkinServer;
+import org.springframework.cloud.dataflow.server.EnableDataFlowServer;
 
+@EnableDataFlowServer
 @EnableDiscoveryClient
 @SpringBootApplication
-@EnableZipkinServer
-public class ZipkinServiceApplication {
+public class DataflowServiceApplication {
 
-    public static void main(String[] args) {
-        SpringApplication.run(ZipkinServiceApplication.class, args);
-    }
+	public static void main(String[] args) {
+		SpringApplication.run(DataflowServiceApplication.class, args);
+	}
 }
