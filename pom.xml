@@ -72,7 +72,9 @@
         <profile>
             <id>camden</id>
             <modules>
+                <module>bootiful-microservices-camden/auth-service</module>
                 <module>bootiful-microservices-camden/config-service</module>
+                <module>bootiful-microservices-camden/dataflow-service</module>
                 <module>bootiful-microservices-camden/eureka-service</module>
                 <module>bootiful-microservices-camden/hystrix-dashboard</module>
                 <module>bootiful-microservices-camden/reservation-service</module>
