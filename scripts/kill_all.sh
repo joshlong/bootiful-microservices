@@ -6,7 +6,9 @@ set -e
 
 echo -e "I'm in folder `pwd`"
 echo -e "Killing all apps\n"
+kill_app auth-service
 kill_app config-service
+kill_app dataflow-service
 kill_app eureka-service
 kill_app hystrix-dashboard
 kill_app reservation-client

@@ -85,11 +85,12 @@ function kill_all_apps() {
 
 # Calls a POST curl to /person to an app on localhost with port $1 on path $2
 function send_test_request() {
+    local token=${TOKEN:-token}
     READY_FOR_TESTS="no"
     for i in $( seq 1 "${RETRIES}" ); do
         sleep "${WAIT_TIME}"
         echo -e "Sending a GET to 127.0.0.1:$1/$2 . This is the response:\n"
-        curl -sS --fail "127.0.0.1:${1}/${2}" && READY_FOR_TESTS="yes" && break
+        curl -sS --fail "127.0.0.1:${1}/${2}"  -H "Authorization: Bearer $token" && READY_FOR_TESTS="yes" && break
         echo "Fail #$i/${RETRIES}... will try again in [${WAIT_TIME}] seconds"
     done
     if [[ "${READY_FOR_TESTS}" == "yes" ]] ; then
@@ -161,6 +162,18 @@ function check_span_names() {
     check_span_names_for_service $EXPECTED_RESERVATION_SERVICE_ENTRIES $RESERVATION_SERVICE_RESPONSE "Reservation Service"
 }
 
+function get_token() {
+    local SYSTEM=`uname -s`
+    local VERSION='linux64'
+    if [[ "${SYSTEM}" == "Darwin" ]] ; then
+        VERSION='osx-amd64'
+    fi
+    curl -L -o /tmp/jq "https://github.com/stedolan/jq/releases/download/jq-1.5/jq-$VERSION"
+    chmod +x /tmp/jq
+    local token=`curl 'localhost:9191/uaa/oauth/token?username=jlong&password=spring&grant_type=password' --user acme:acmesecret -X POST --data '{ "client_secret" : "acmesecret", "client_id" : "acme", "scope" : "openid", "granttype" : "password", "username" : "jlong", "password" : "spring" }' | /tmp/jq -r .access_token`
+    export TOKEN="$token"
+    echo "The token is equal to $TOKEN"
+}
 export WAIT_TIME
 export RETIRES
 export SERVICE_PORT

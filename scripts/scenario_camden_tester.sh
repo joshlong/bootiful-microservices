@@ -31,17 +31,21 @@ We will do it in the following way:
 04) Wait for the app (eureka-service) to boot (port: 8761)
 05) Run hystrix-dashboard
 06) Wait for the app (hystrix-dashboard) to boot (port: 8010)
-07) Run reservation-client
-08) Wait for the app (reservation-client) to boot (port: 9999)
-09) Wait for the app (reservation-client) to register in Eureka Server
-10) Run reservation-service
-11) Wait for the app (reservation-service) to boot (port: 8000)
-12) Wait for the app (reservation-service) to register in Eureka Server
-13) Run zipkin-service
-14) Wait for the app (zipkin-service) to boot (port: 9411)
-15) Wait for the app (zipkin-service) to register in Eureka Server
-16) Send a test request to populate some entries in Zipkin
-17) Check if Zipkin has stored the trace for the aforementioned request
+07) Run auth-service
+08) Wait for the app (auth-service) to boot (port: 9191)
+09) Run dataflow-service
+10) Wait for the app (dataflow-service) to boot (port: 9393)
+11) Run reservation-client
+12) Wait for the app (reservation-client) to boot (port: 9999)
+13) Wait for the app (reservation-client) to register in Eureka Server
+14) Run reservation-service
+15) Wait for the app (reservation-service) to boot (port: 8000)
+16) Wait for the app (reservation-service) to register in Eureka Server
+17) Run zipkin-service
+18) Wait for the app (zipkin-service) to boot (port: 9411)
+19) Wait for the app (zipkin-service) to register in Eureka Server
+20) Send a test request to populate some entries in Zipkin
+21) Check if Zipkin has stored the trace for the aforementioned request
 
 EOF
 
@@ -53,11 +57,17 @@ cd $ROOT_FOLDER/bootiful-microservices-$PROFILE
 java_jar config-service
 wait_for_app_to_boot_on_port 8888
 
+java_jar auth-service
+wait_for_app_to_boot_on_port 9191
+
 java_jar eureka-service
 wait_for_app_to_boot_on_port 8761
 
 java_jar hystrix-dashboard
 wait_for_app_to_boot_on_port 8010
+
+java_jar dataflow-service
+wait_for_app_to_boot_on_port 9393
 
 java_jar reservation-client
 wait_for_app_to_boot_on_port 9999
@@ -71,6 +81,7 @@ java_jar zipkin-service
 wait_for_app_to_boot_on_port 9411
 check_app_presence_in_discovery ZIPKIN-SERVICE
 
+get_token
 send_test_request 9999 "reservations/names"
 echo -e "\n\nThe $BOM_VERSION Reservation client successfully responded to the call"
 
