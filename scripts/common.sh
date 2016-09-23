@@ -31,7 +31,11 @@ function curl_health_endpoint() {
         curl -sS -m 5 "${PASSED_HOST}:$1/health" && READY_FOR_TESTS=0 && break
         echo "Fail #$i/${RETRIES}... will try again in [${WAIT_TIME}] seconds"
     done
-    return $READY_FOR_TESTS
+    if [[ "${READY_FOR_TESTS}" == "1" ]] ; then
+        echo -e "\n\nThe app failed to start :( Printing all logs\n\n"
+        print_all_logs
+    fi
+    return ${READY_FOR_TESTS}
 }
 
 # Check the app $1 (in capital)
@@ -40,7 +44,7 @@ function check_app_presence_in_discovery() {
     READY_FOR_TESTS="no"
     for i in $( seq 1 "${RETRIES}" ); do
         sleep "${WAIT_TIME}"
-        curl -sS -m 5 $PRESENCE_CHECK_URL | grep $1 && READY_FOR_TESTS="yes" && break
+        curl -sS -m 5 ${PRESENCE_CHECK_URL} | grep $1 && READY_FOR_TESTS="yes" && break
         echo "Fail #$i/${RETRIES}... will try again in [${WAIT_TIME}] seconds"
     done
     if [[ "${READY_FOR_TESTS}" == "yes" ]] ; then
@@ -56,9 +60,9 @@ function java_jar() {
     local APP_JAVA_PATH=$1/${BUILD_FOLDER}
     local EXPRESSION="nohup ${JAVA_PATH_TO_BIN}java $2 $SYSTEM_PROPS -jar $APP_JAVA_PATH/*.jar >$APP_JAVA_PATH/nohup.log &"
     echo -e "\nTrying to run [$EXPRESSION]"
-    eval $EXPRESSION
+    eval ${EXPRESSION}
     pid=$!
-    echo $pid > $APP_JAVA_PATH/app.pid
+    echo ${pid} > ${APP_JAVA_PATH}/app.pid
     echo -e "[$1] process pid is [$pid]"
     echo -e "System props are [$2]"
     echo -e "Logs are under [$APP_JAVA_PATH/nohup.log]\n"
@@ -110,7 +114,7 @@ function check_trace() {
     for i in $( seq 1 "${RETRIES}" ); do
         sleep "${WAIT_TIME}"
         echo -e "Sending a GET to $URL_TO_CALL . This is the response:\n"
-        curl -sS --fail "$URL_TO_CALL" | grep $STRING_TO_FIND &&  READY_FOR_TESTS="yes" && break
+        curl -sS --fail "$URL_TO_CALL" | grep ${STRING_TO_FIND} &&  READY_FOR_TESTS="yes" && break
         echo "Fail #$i/${RETRIES}... will try again in [${WAIT_TIME}] seconds"
     done
     if [[ "${READY_FOR_TESTS}" == "yes" ]] ; then
@@ -137,7 +141,7 @@ function check_span_names_for_service() {
 
     for i in ${PARSED_EXPECTED_ENTRIES[@]}
     do
-         echo $RECEIVED_RESPONSE | grep "$i" && echo "The array contains $i" && READY_FOR_TESTS="yes"
+         echo ${RECEIVED_RESPONSE} | grep "$i" && echo "The array contains $i" && READY_FOR_TESTS="yes"
     done
 
     if [[ "${READY_FOR_TESTS}" == "yes" ]] ; then
@@ -158,8 +162,8 @@ function check_span_names() {
     local RESERVATION_CLIENT_RESPONSE=`curl -sS --fail "$RESERVATION_CLIENT_URL_TO_CALL"`
     local RESERVATION_SERVICE_RESPONSE=`curl -sS --fail "$RESERVATION_SERVICE_URL_TO_CALL"`
 
-    check_span_names_for_service $EXPECTED_RESERVATION_CLIENT_ENTRIES $RESERVATION_CLIENT_RESPONSE "Reservation Client"
-    check_span_names_for_service $EXPECTED_RESERVATION_SERVICE_ENTRIES $RESERVATION_SERVICE_RESPONSE "Reservation Service"
+    check_span_names_for_service ${EXPECTED_RESERVATION_CLIENT_ENTRIES} ${RESERVATION_CLIENT_RESPONSE} "Reservation Client"
+    check_span_names_for_service ${EXPECTED_RESERVATION_SERVICE_ENTRIES} ${RESERVATION_SERVICE_RESPONSE} "Reservation Service"
 }
 
 function get_token() {
@@ -174,6 +178,24 @@ function get_token() {
     export TOKEN="$token"
     echo "The token is equal to $TOKEN"
 }
+
+function print_all_logs() {
+    print_logs auth-service
+    print_logs config-service
+    print_logs dataflow-service
+    print_logs eureka-service
+    print_logs hystrix-dashboard
+    print_logs reservation-client
+    print_logs reservation-service
+    print_logs zipkin-service
+}
+
+function print_logs() {
+    local app_name=$1
+    echo -e "\n\nPrinting [${app_name}] logs"
+    cat ${app_name}/${BUILD_FOLDER}/nohup.log || echo "Failed to print the logs"
+}
+
 export WAIT_TIME
 export RETIRES
 export SERVICE_PORT
