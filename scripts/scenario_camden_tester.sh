@@ -57,6 +57,9 @@ cd $ROOT_FOLDER/bootiful-microservices-$PROFILE
 java_jar config-service
 wait_for_app_to_boot_on_port 8888
 
+java_jar auth-service
+wait_for_app_to_boot_on_port 9191
+
 java_jar eureka-service
 wait_for_app_to_boot_on_port 8761
 
