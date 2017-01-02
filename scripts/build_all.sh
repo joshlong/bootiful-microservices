@@ -2,8 +2,8 @@
 
 source common.sh || source scripts/common.sh || echo "No common.sh script found..."
 
-PROFILE="${PROFILE:-camden}"
-BOM_VERSION="${BOM_VERSION:-Camden.BUILD-SNAPSHOT}"
+PROFILE="${PROFILE:-dalston}"
+BOM_VERSION="${BOM_VERSION:-Dalston.BUILD-SNAPSHOT}"
 ADDITIONAL_MAVEN_OPTS="${ADDITIONAL_MAVEN_OPTS:--Dspring.cloud.release.version=$BOM_VERSION}"
 
 set -e
