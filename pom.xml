@@ -82,6 +82,32 @@
                 <module>bootiful-microservices-camden/zipkin-service</module>
             </modules>
         </profile>
+        <profile>
+            <id>dalston</id>
+            <modules>
+                <module>bootiful-microservices-dalston/auth-service</module>
+                <module>bootiful-microservices-dalston/config-service</module>
+                <module>bootiful-microservices-dalston/dataflow-service</module>
+                <module>bootiful-microservices-dalston/eureka-service</module>
+                <module>bootiful-microservices-dalston/hystrix-dashboard</module>
+                <module>bootiful-microservices-dalston/reservation-service</module>
+                <module>bootiful-microservices-dalston/reservation-client</module>
+                <module>bootiful-microservices-dalston/zipkin-service</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>edgware</id>
+            <modules>
+                <module>bootiful-microservices-edgware/auth-service</module>
+                <module>bootiful-microservices-edgware/config-service</module>
+                <module>bootiful-microservices-edgware/dataflow-service</module>
+                <module>bootiful-microservices-edgware/eureka-service</module>
+                <module>bootiful-microservices-edgware/hystrix-dashboard</module>
+                <module>bootiful-microservices-edgware/reservation-service</module>
+                <module>bootiful-microservices-edgware/reservation-client</module>
+                <module>bootiful-microservices-edgware/zipkin-service</module>
+            </modules>
+        </profile>
     </profiles>
 
 </project>

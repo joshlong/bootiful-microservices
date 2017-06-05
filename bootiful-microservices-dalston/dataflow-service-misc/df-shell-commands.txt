@@ -1,0 +1,2 @@
+app import --uri http://bit.ly/1-0-4-GA-stream-applications-rabbit-maven
+stream create --name files-to-reservations --definition " file --file.consumer.mode=lines --file.directory=/Users/jlong/Desktop/in > :reservations " --deploy
